@@ -1,4 +1,6 @@
+import 'package:bu9l7y/app_ground.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
+import 'package:bu9l7y/feature/auth/views/otp_screen.dart';
 import 'package:bu9l7y/feature/auth/views/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
                   color: const Color(0xFF294968),
                 ),
               ),
@@ -137,7 +139,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const OtpScreen(),
+                            ),
+                          );
+                        },
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF838383),
                           padding: EdgeInsets.zero,
@@ -168,7 +176,13 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const AppGround(initialIndex: 0),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF284968),
                     foregroundColor: Colors.white,
