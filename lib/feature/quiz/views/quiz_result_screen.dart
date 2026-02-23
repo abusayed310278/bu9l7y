@@ -1,5 +1,6 @@
 import 'package:bu9l7y/feature/quiz/views/review_answers_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class QuizResultScreen extends StatelessWidget {
   const QuizResultScreen({super.key});
@@ -22,9 +23,9 @@ class QuizResultScreen extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Question 5 of 5',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -92,9 +93,9 @@ class QuizResultScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                         ),
                         icon: const Icon(Icons.remove_red_eye_outlined, size: 20),
-                        label: const Text(
+                        label: Text(
                           'Review Answers',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                          style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
                         ),
                       ),
                     ),
@@ -112,12 +113,12 @@ class QuizResultScreen extends StatelessWidget {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.refresh_rounded, size: 20),
                             SizedBox(width: 8),
                             Text(
                               'Take Another Quiz',
-                              style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                              style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
                             ),
                           ],
                         ),
@@ -138,9 +139,9 @@ class QuizResultScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                         ),
                         icon: const Icon(Icons.home_outlined, size: 20),
-                        label: const Text(
+                        label: Text(
                           'Back to home',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                          style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
                         ),
                       ),
                     ),
@@ -191,8 +192,7 @@ class _ResultTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontFamily: 'Outfit',
+                  style: GoogleFonts.outfit(
                     fontSize: 14,
                     height: 1.2,
                     color: Color(0xFF3C3C43),
@@ -202,8 +202,7 @@ class _ResultTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontFamily: 'Outfit',
+                  style: GoogleFonts.outfit(
                     fontSize: 14,
                     height: 1.2,
                     color: Color(0xFF1F2224),
@@ -253,8 +252,7 @@ class _ScoreRing extends StatelessWidget {
             children: [
               Text(
                 valueText,
-                style: const TextStyle(
-                  fontFamily: 'Outfit',
+                style: GoogleFonts.outfit(
                   fontSize: 48,
                   height: 1.2,
                   color: Color(0xFF000000),
@@ -264,8 +262,7 @@ class _ScoreRing extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 label,
-                style: const TextStyle(
-                  fontFamily: 'Outfit',
+                style: GoogleFonts.outfit(
                   fontSize: 14,
                   height: 1.2,
                   color: Color(0xFF878787),

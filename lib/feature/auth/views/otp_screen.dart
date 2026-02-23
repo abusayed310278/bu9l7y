@@ -1,6 +1,7 @@
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/auth/views/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
@@ -56,36 +57,34 @@ class _OtpScreenState extends State<OtpScreen> {
                 child: SizedBox(width: 60, height: 60, child: Image.asset(Images.appLogo, fit: BoxFit.contain)),
               ),
               const SizedBox(height: 24),
-              const SizedBox(
+              SizedBox(
                 width: 277,
                 height: 30,
                 child: Text(
                   'Enter Code',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
+                  style: GoogleFonts.outfit(
                     fontSize: 24,
                     height: 1.0,
                     letterSpacing: 0,
-                    color: Color(0xFF284968),
+                    color: const Color(0xFF284968),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
-              const SizedBox(
+              SizedBox(
                 width: 277,
                 height: 28,
                 child: Text(
                   'Please check your Email for a message with your code. Your code is 6 numbers long.',
                   textAlign: TextAlign.center,
                   maxLines: 2,
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
+                  style: GoogleFonts.outfit(
                     fontSize: 12,
                     height: 1.2,
                     letterSpacing: 0,
-                    color: Color(0xFF6C6C6C),
+                    color: const Color(0xFF6C6C6C),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -112,18 +111,17 @@ class _OtpScreenState extends State<OtpScreen> {
                 }),
               ),
               const SizedBox(height: 18),
-              const SizedBox(
+              SizedBox(
                 width: 332,
                 height: 21,
                 child: Text(
                   'Resend code in 43s',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
+                  style: GoogleFonts.outfit(
                     fontSize: 14,
                     height: 1.5,
                     letterSpacing: 0,
-                    color: Color(0xFF6F7D92),
+                    color: const Color(0xFF6F7D92),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -142,11 +140,10 @@ class _OtpScreenState extends State<OtpScreen> {
                     padding: const EdgeInsets.all(10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Verify',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Outfit',
+                    style: GoogleFonts.outfit(
                       fontSize: 16,
                       height: 1.2,
                       letterSpacing: 0,
@@ -193,14 +190,7 @@ class _OtpBox extends StatelessWidget {
         maxLength: 1,
         cursorHeight: 24,
         cursorWidth: 1.2,
-        style: const TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 26,
-          height: 1,
-          letterSpacing: 0,
-          color: Color(0xFF284968),
-          fontWeight: FontWeight.w500,
-        ),
+        style: GoogleFonts.outfit(fontSize: 26, height: 1, letterSpacing: 0, color: Color(0xFF284968), fontWeight: FontWeight.w500),
         decoration: const InputDecoration(counterText: '', border: InputBorder.none, contentPadding: EdgeInsets.zero),
       ),
     );

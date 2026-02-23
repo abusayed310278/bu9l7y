@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
   const UpdatePasswordScreen({super.key});
@@ -51,10 +52,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     'Update Password',
-                    style: TextStyle(
-                      fontFamily: 'Outfit',
+                    style: GoogleFonts.outfit(
                       fontSize: 16,
                       height: 1,
                       color: Color(0xFF1F2224),
@@ -88,10 +88,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Save',
-                    style: TextStyle(
-                      fontFamily: 'Outfit',
+                    style: GoogleFonts.outfit(
                       fontSize: 16,
                       height: 1.2,
                       color: Colors.white,
@@ -117,8 +116,7 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-        fontFamily: 'Outfit',
+      style: GoogleFonts.outfit(
         fontSize: 16,
         height: 1.2,
         color: Color(0xFF2C313A),
@@ -140,8 +138,7 @@ class _PasswordField extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: true,
-        style: const TextStyle(
-          fontFamily: 'Outfit',
+        style: GoogleFonts.outfit(
           fontSize: 16,
           height: 1.2,
           color: Color(0xFF1F2224),

@@ -1,6 +1,7 @@
 class Images {
   static const String appLogo = 'assets/images/IMG_8857 1.png';
   static const String anotherQuiz = 'assets/images/another_quiz.png';
+  static const String applePay = 'assets/images/apple_pay.png';
   static const String avg = 'assets/images/avg.png';
   static const String cancel = 'assets/images/cancel.png';
   static const String cart = 'assets/images/cart.png';
@@ -19,4 +20,8 @@ class Images {
   static const String right = 'assets/images/right.png';
   static const String settings = 'assets/images/settings.png';
   static const String user = 'assets/images/user.png';
+  static const String cardOfPayment = 'assets/images/card_of_payment.png';
+  static const String applesPay = 'assets/images/apple_pay.png';
+  static const String success = 'assets/images/success.png';
+  static const String failed = 'assets/images/failed.png';
 }

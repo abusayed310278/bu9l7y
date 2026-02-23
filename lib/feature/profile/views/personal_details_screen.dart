@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PersonalDetailsScreen extends StatefulWidget {
@@ -67,9 +68,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                     constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     'Personal Details',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -135,9 +136,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Save',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Colors.white, fontWeight: FontWeight.w400),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Colors.white, fontWeight: FontWeight.w400),
                   ),
                 ),
               ),
@@ -158,7 +159,7 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Color(0xFF2C313A), fontWeight: FontWeight.w400),
+      style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF2C313A), fontWeight: FontWeight.w400),
     );
   }
 }
@@ -182,7 +183,7 @@ class _FieldInput extends StatelessWidget {
         maxLines: maxLines,
         keyboardType: keyboardType,
         textAlignVertical: topAlign ? TextAlignVertical.top : TextAlignVertical.center,
-        style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
+        style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFEBEBEB),

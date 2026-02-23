@@ -2,6 +2,7 @@ import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/profile/views/personal_details_screen.dart';
 import 'package:bu9l7y/feature/profile/views/update_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
@@ -25,15 +26,9 @@ class AccountSettingsScreen extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     'Account Settings',
-                    style: TextStyle(
-                      fontFamily: 'Outfit',
-                      fontSize: 16,
-                      height: 1.0,
-                      color: Color(0xFF1F2224),
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1.0, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -68,16 +63,16 @@ class AccountSettingsScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Bu Ahmed',
-                style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Color(0xFF000000), fontWeight: FontWeight.w500),
+                style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF000000), fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 34),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'General Settings',
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.0, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                  style: GoogleFonts.outfit(fontSize: 16, height: 1.0, color: const Color(0xFF1F2224), fontWeight: FontWeight.w500),
                 ),
               ),
               const SizedBox(height: 12),
@@ -127,24 +122,12 @@ class AccountSettingsScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontFamily: 'Outfit',
-                      fontSize: 16,
-                      height: 1.2,
-                      color: Color(0xFF1F2224),
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 12,
-                        height: 1.2,
-                        color: Color(0xFF8A8E95),
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF8A8E95), fontWeight: FontWeight.w400),
                     ),
                 ],
               ),

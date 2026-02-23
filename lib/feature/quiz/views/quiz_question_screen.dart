@@ -1,5 +1,6 @@
 import 'package:bu9l7y/feature/quiz/views/quiz_result_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum QuizQuestionType { singleChoice, multiChoice, typed }
 
@@ -165,8 +166,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Question ${question.index} of ${question.total}',
-                    style: const TextStyle(
-                      fontFamily: 'Outfit',
+                    style: GoogleFonts.outfit(
                       fontSize: 16,
                       height: 1,
                       color: Color(0xFF1F2224),
@@ -198,8 +198,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                   children: [
                     Text(
                       '${question.index}.  ${question.question}',
-                      style: const TextStyle(
-                        fontFamily: 'Outfit',
+                      style: GoogleFonts.outfit(
                         fontSize: 14,
                         height: 1.2,
                         color: Color(0xFF1F2224),
@@ -223,8 +222,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                           Expanded(
                             child: Text(
                               question.helpText!.replaceFirst('.', '').trim(),
-                              style: const TextStyle(
-                                fontFamily: 'Outfit',
+                              style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 height: 1.2,
                                 color: Color(0xFF007AFF),
@@ -252,9 +250,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Previous',
-                                style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
+                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
@@ -273,7 +271,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                               ),
                               child: Text(
                                 _currentIndex == _questions.length - 1 ? 'Submit' : 'Next',
-                                style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
+                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
@@ -337,18 +335,17 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
         const SizedBox(height: 8),
         Text(
           question.helpText ?? 'Type your answer here',
-          style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
+          style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
         ),
         const SizedBox(height: 8),
         SizedBox(
           height: 44,
           child: TextField(
             controller: _controllerFor(question.index),
-            style: const TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
+            style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
             decoration: InputDecoration(
               hintText: 'A C D B...',
-              hintStyle: const TextStyle(
-                fontFamily: 'Outfit',
+              hintStyle: GoogleFonts.outfit(
                 fontSize: 14,
                 height: 1.2,
                 color: Color(0xFFB0B0B0),
@@ -409,8 +406,7 @@ class _OptionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: TextStyle(
-                  fontFamily: 'Outfit',
+                style: GoogleFonts.outfit(
                   fontSize: 14,
                   height: 1.2,
                   color: selected ? const Color(0xFF1E8BD7) : const Color(0xFF1F2224),

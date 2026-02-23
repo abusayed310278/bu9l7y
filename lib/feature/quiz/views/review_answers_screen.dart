@@ -1,5 +1,6 @@
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum ReviewQuestionState { correct, incorrect }
 
@@ -85,9 +86,9 @@ class ReviewAnswersScreen extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Review Answers',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                  style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -119,9 +120,9 @@ class ReviewAnswersScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                       ),
                       icon: const Icon(Icons.refresh_rounded, size: 20),
-                      label: const Text(
+                      label: Text(
                         'Take Another Quiz',
-                        style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                        style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
                       ),
                     ),
                   ),
@@ -140,9 +141,9 @@ class ReviewAnswersScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                       ),
                       icon: const Icon(Icons.home_outlined, size: 20),
-                      label: const Text(
+                      label: Text(
                         'Back to home',
-                        style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                        style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
                       ),
                     ),
                   ),
@@ -183,8 +184,7 @@ class _ReviewQuestionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 item.title,
-                style: const TextStyle(
-                  fontFamily: 'Outfit',
+                style: GoogleFonts.outfit(
                   fontSize: 14,
                   height: 1.2,
                   color: Color(0xFF3C3C43),
@@ -196,7 +196,7 @@ class _ReviewQuestionCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             item.question,
-            style: const TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: Color(0xFF3C3C43), fontWeight: FontWeight.w400),
+            style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF3C3C43), fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 10),
           if (!isTyped) ..._buildChoiceBlocks(isCorrect),
@@ -204,8 +204,7 @@ class _ReviewQuestionCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             isCorrect ? 'Your answer is correct' : 'Incorrect Answer',
-            style: TextStyle(
-              fontFamily: 'Outfit',
+            style: GoogleFonts.outfit(
               fontSize: 14,
               height: 1.2,
               color: isCorrect ? const Color(0xFF00A63E) : const Color(0xFFFB2C36),
@@ -214,9 +213,9 @@ class _ReviewQuestionCard extends StatelessWidget {
           ),
           if (!isCorrect && !isTyped) ...[
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Correct Answers',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: Color(0xFF00C950), fontWeight: FontWeight.w400),
+              style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF00C950), fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 8),
             ..._buildCorrectBlocks(),
@@ -270,9 +269,9 @@ class _ReviewQuestionCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           'Correct Answer',
-          style: TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: Color(0xFF00C950), fontWeight: FontWeight.w400),
+          style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF00C950), fontWeight: FontWeight.w400),
         ),
         const SizedBox(height: 6),
         Container(
@@ -286,7 +285,7 @@ class _ReviewQuestionCard extends StatelessWidget {
           ),
           child: Text(
             item.freeTextAnswer!,
-            style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1.2, color: Color(0xFF2BB673), fontWeight: FontWeight.w400),
+            style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF2BB673), fontWeight: FontWeight.w400),
           ),
         ),
       ],
@@ -362,7 +361,7 @@ class _AnswerPill extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: textColor, fontWeight: FontWeight.w400),
+              style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: textColor, fontWeight: FontWeight.w400),
             ),
           ),
           if (showIncorrectIcon) ...[

@@ -3,6 +3,7 @@ import 'package:bu9l7y/feature/credits/views/credits_screen.dart';
 import 'package:bu9l7y/feature/home/views/home_screen.dart';
 import 'package:bu9l7y/feature/profile/views/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppGround extends StatefulWidget {
   const AppGround({
@@ -121,8 +122,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(
-                fontFamily: 'Outfit',
+              style: GoogleFonts.outfit(
                 fontSize: 12,
                 height: 1,
                 color: itemColor,

@@ -1,5 +1,6 @@
 import 'package:bu9l7y/feature/quiz/views/quiz_question_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SelectQuizTopicsScreen extends StatefulWidget {
   const SelectQuizTopicsScreen({super.key});
@@ -37,17 +38,17 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Select Quiz Topics',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: () {},
                     style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: const Color(0xFF1E8BD7)),
-                    child: const Text(
+                    child: Text(
                       'See all',
-                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1, fontWeight: FontWeight.w400),
+                      style: GoogleFonts.outfit(fontSize: 12, height: 1, fontWeight: FontWeight.w400),
                     ),
                   ),
                 ],
@@ -93,9 +94,9 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Continue',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -146,12 +147,12 @@ class _TopicCard extends StatelessWidget {
                 children: [
                   Text(
                     topic.title,
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '${topic.questions} Questions  •  ${topic.credits} credits',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1.2, color: subtitleColor, fontWeight: FontWeight.w400),
+                    style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: subtitleColor, fontWeight: FontWeight.w400),
                   ),
                 ],
               ),

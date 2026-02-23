@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/auth/views/sign_in_screen.dart';
 import 'package:bu9l7y/feature/profile/views/account_settings_screen.dart';
@@ -44,19 +45,19 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Bu Ahmed',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Color(0xFF000000), fontWeight: FontWeight.w500),
+              style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF000000), fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 48),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: SizedBox(
                 width: 343,
                 height: 20,
                 child: Text(
                   'Settings',
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                  style: GoogleFonts.outfit(fontSize: 16, height: 1, color: const Color(0xFF1F2224), fontWeight: FontWeight.w500),
                 ),
               ),
             ),
@@ -107,7 +108,7 @@ class ProfileScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w400),
+                style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w400),
               ),
             ),
             ...?(trailing == null ? null : <Widget>[trailing]),
@@ -136,15 +137,15 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Are you sure want to Log out',
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w600),
+                  style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Tap log out to Log out from this app.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1.2, color: Color(0xFF111111), fontWeight: FontWeight.w400),
+                  style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF111111), fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(height: 18),
                 Row(
@@ -160,10 +161,7 @@ class ProfileScreen extends StatelessWidget {
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
+                          child: Text('Cancel', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500)),
                         ),
                       ),
                     ),
@@ -184,10 +182,7 @@ class ProfileScreen extends StatelessWidget {
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text(
-                            'Log out',
-                            style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
+                          child: Text('Log out', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500)),
                         ),
                       ),
                     ),
