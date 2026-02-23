@@ -1,3 +1,4 @@
+import 'package:bu9l7y/feature/quiz/views/quiz_result_screen.dart';
 import 'package:flutter/material.dart';
 
 enum QuizQuestionType { singleChoice, multiChoice, typed }
@@ -52,7 +53,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       question:
           'Jim creates a science project on his school computer. The project includes some documents and two graphics. He wants to work on these files on his home computer. Jim wants to use a storage device to save the project files and take them home. Which of the following devices will he use to save the files?',
       type: QuizQuestionType.multiChoice,
-      helpText: 'Select all that apply',
+      helpText: '. Select all that apply',
       options: [
         'Option A -  Graphics card',
         'Option B -  Modem  FireWire  Parallel port',
@@ -79,7 +80,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       question:
           'Jim creates a science project on his school computer. The project includes some documents and two graphics. He wants to work on these files on his home computer. Jim wants to use a storage device to save the project files and take them home. Which of the following devices will he use to save the files?',
       type: QuizQuestionType.singleChoice,
-      helpText: 'Select one answer',
+      helpText: '. Select one answer',
       options: [
         'Option A -  Graphics card',
         'Option B -  Modem  FireWire  Parallel port',
@@ -90,9 +91,17 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
     QuizQuestion(
       index: 5,
       total: 5,
-      question: 'Type a short answer explaining your reasoning.',
-      type: QuizQuestionType.typed,
-      helpText: 'Type your answer here',
+      question:
+          'Angelina buys a new printer. She wants to connect it to her home computer. Which of the following parts of the computer can she use to connect the printer to the computer?',
+      type: QuizQuestionType.multiChoice,
+      helpText: '. Select 3 correct answers',
+      options: [
+        'Option A -  Graphics card',
+        'Option B -  Modem  FireWire  Parallel port',
+        'Option C -  Universal serial bus',
+        'Option D -  port',
+      ],
+      maxSelections: 3,
     ),
   ];
 
@@ -116,7 +125,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       setState(() {
         _currentIndex += 1;
       });
+      return;
     }
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const QuizResultScreen()));
   }
 
   void _goPrevious() {
@@ -181,7 +192,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
             const SizedBox(height: 18),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -190,73 +201,87 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 14,
-                        height: 1.4,
+                        height: 1.2,
                         color: Color(0xFF1F2224),
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     if (question.helpText != null) ...[
                       const SizedBox(height: 10),
-                      Text(
-                        question.helpText!,
-                        style: const TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: 12,
-                          height: 1.2,
-                          color: Color(0xFF1E8BD7),
-                          fontWeight: FontWeight.w400,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 4,
+                            margin: const EdgeInsets.only(right: 6),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF007AFF),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              question.helpText!.replaceFirst('.', '').trim(),
+                              style: const TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 12,
+                                height: 1.2,
+                                color: Color(0xFF007AFF),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                     const SizedBox(height: 18),
                     if (question.type != QuizQuestionType.typed) ..._buildOptionCards(question),
                     if (question.type == QuizQuestionType.typed) _buildTypedQuestion(question),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: _currentIndex == 0 ? null : _goPrevious,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFE6E6E6),
+                                foregroundColor: const Color(0xFF3C3C43),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                              ),
+                              child: const Text(
+                                'Previous',
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: SizedBox(
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: _goNext,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF284968),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                              ),
+                              child: Text(
+                                _currentIndex == _questions.length - 1 ? 'Submit' : 'Next',
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _currentIndex == 0 ? null : _goPrevious,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE6E6E6),
-                          foregroundColor: const Color(0xFF3C3C43),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                        ),
-                        child: const Text(
-                          'Previous',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _currentIndex == _questions.length - 1 ? null : _goNext,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF284968),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                        ),
-                        child: const Text(
-                          'Next',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -353,7 +378,7 @@ class _OptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color borderColor = selected ? const Color(0xFF1E8BD7) : const Color(0xFFD3D3D3);
     final Color bgColor = selected ? const Color(0xFFEAF6FF) : const Color(0xFFFFFFFF);
-    final Color iconColor = selected ? const Color(0xFF1E8BD7) : const Color(0xFFC4C4C4);
+    final Color iconColor = selected ? const Color(0xFF1E8BD7) : const Color(0xFFCCCCCC);
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
@@ -370,13 +395,13 @@ class _OptionCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 22,
-              height: 22,
+              width: 26,
+              height: 26,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: selected ? const Color(0xFF1E8BD7) : Colors.transparent,
-                borderRadius: BorderRadius.circular(11),
-                border: Border.all(color: iconColor, width: 1.5),
+                borderRadius: BorderRadius.circular(13),
+                border: Border.all(color: iconColor, width: 2),
               ),
               child: selected ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
             ),
