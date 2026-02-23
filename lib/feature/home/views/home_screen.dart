@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
+import 'package:bu9l7y/feature/quiz/views/select_quiz_topics_screen.dart';
+import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -146,11 +147,22 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const _ActionButton(iconPath: Images.play, text: 'Start New Quiz'),
+            _ActionButton(
+              iconPath: Images.play,
+              text: 'Start New Quiz',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const SelectQuizTopicsScreen(),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 10),
-            const _ActionButton(
+            _ActionButton(
               iconPath: Images.cart,
               text: 'Get More Credits',
+              onPressed: () {},
             ),
             const SizedBox(height: 16),
             const Text(
@@ -232,10 +244,15 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.iconPath, required this.text});
+  const _ActionButton({
+    required this.iconPath,
+    required this.text,
+    this.onPressed,
+  });
 
   final String iconPath;
   final String text;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +260,7 @@ class _ActionButton extends StatelessWidget {
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF284968),
           elevation: 0,
