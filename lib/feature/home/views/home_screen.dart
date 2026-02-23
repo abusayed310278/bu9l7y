@@ -1,3 +1,4 @@
+import 'package:bu9l7y/app_ground.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/quiz/views/select_quiz_topics_screen.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +118,17 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 10),
-            _ActionButton(iconPath: Images.cart, text: 'Get More Credits', onPressed: () {}),
+            _ActionButton(
+              iconPath: Images.cart,
+              text: 'Get More Credits',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AppGround(initialIndex: 1),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 16),
             Text(
               'Your Progress',
