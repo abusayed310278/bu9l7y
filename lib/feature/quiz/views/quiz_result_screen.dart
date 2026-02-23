@@ -1,3 +1,4 @@
+import 'package:bu9l7y/feature/quiz/views/review_answers_screen.dart';
 import 'package:flutter/material.dart';
 
 class QuizResultScreen extends StatelessWidget {
@@ -77,7 +78,13 @@ class QuizResultScreen extends StatelessWidget {
                       height: 48,
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ReviewAnswersScreen(),
+                            ),
+                          );
+                        },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF0B86CD),
                           padding: const EdgeInsets.all(10),
@@ -95,7 +102,7 @@ class QuizResultScreen extends StatelessWidget {
                     SizedBox(
                       height: 48,
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF284968),
@@ -103,10 +110,16 @@ class QuizResultScreen extends StatelessWidget {
                           elevation: 0,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                         ),
-                        icon: const Icon(Icons.refresh_rounded, size: 20),
-                        label: const Text(
-                          'Take Another Quiz',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.refresh_rounded, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Take Another Quiz',
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -216,19 +229,23 @@ class _ScoreRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 160,
-      width: 160,
+      height: 181,
+      width: 181,
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            height: 150,
-            width: 150,
-            child: CircularProgressIndicator(
-              value: percent,
-              strokeWidth: 10,
-              backgroundColor: const Color(0xFFE6E6E6),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF284968)),
+            height: 181,
+            width: 181,
+            child: Transform.rotate(
+              angle: -1.57079632679,
+              child: CircularProgressIndicator(
+                value: percent,
+                strokeWidth: 16,
+                strokeCap: StrokeCap.round,
+                backgroundColor: const Color(0xFFE6E6E6),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF284968)),
+              ),
             ),
           ),
           Column(
@@ -238,10 +255,10 @@ class _ScoreRing extends StatelessWidget {
                 valueText,
                 style: const TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 28,
-                  height: 1.1,
-                  color: Color(0xFF1F2224),
-                  fontWeight: FontWeight.w600,
+                  fontSize: 48,
+                  height: 1.2,
+                  color: Color(0xFF000000),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 4),
@@ -249,9 +266,9 @@ class _ScoreRing extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 12,
-                  height: 1.1,
-                  color: Color(0xFF6B7280),
+                  fontSize: 14,
+                  height: 1.2,
+                  color: Color(0xFF878787),
                   fontWeight: FontWeight.w400,
                 ),
               ),

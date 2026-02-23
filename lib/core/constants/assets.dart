@@ -16,6 +16,7 @@ class Images {
   static const String personalDetails = 'assets/images/personal_details.png';
   static const String play = 'assets/images/play.png';
   static const String quizz = 'assets/images/quizz.png';
+  static const String right = 'assets/images/right.png';
   static const String settings = 'assets/images/settings.png';
   static const String user = 'assets/images/user.png';
 }
