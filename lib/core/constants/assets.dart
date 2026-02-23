@@ -24,4 +24,5 @@ class Images {
   static const String applesPay = 'assets/images/apple_pay.png';
   static const String success = 'assets/images/success.png';
   static const String failed = 'assets/images/failed.png';
+  static const String warning = 'assets/images/warning.png';
 }

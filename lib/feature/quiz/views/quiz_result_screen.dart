@@ -1,4 +1,5 @@
 import 'package:bu9l7y/feature/quiz/views/review_answers_screen.dart';
+import 'package:bu9l7y/feature/quiz/views/select_quiz_topics_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -103,8 +104,14 @@ class QuizResultScreen extends StatelessWidget {
                     SizedBox(
                       height: 48,
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {},
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const SelectQuizTopicsScreen(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF284968),
                           foregroundColor: Colors.white,
