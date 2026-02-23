@@ -1,3 +1,4 @@
+import 'package:bu9l7y/feature/quiz/views/quiz_question_screen.dart';
 import 'package:flutter/material.dart';
 
 class SelectQuizTopicsScreen extends StatefulWidget {
@@ -79,7 +80,13 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                 height: 48,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const QuizQuestionScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF284968),
                     foregroundColor: Colors.white,

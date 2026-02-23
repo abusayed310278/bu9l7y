@@ -143,7 +143,8 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 const Text(
                   'Tap log out to Log out from this app.',
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 14, height: 1.2, color: Color(0xFF4A4F57), fontWeight: FontWeight.w400),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, height: 1.2, color: Color(0xFF111111), fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(height: 18),
                 Row(
