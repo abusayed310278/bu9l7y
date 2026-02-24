@@ -1,7 +1,8 @@
 import 'package:bu9l7y/app_ground.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
-import 'package:bu9l7y/feature/auth/views/otp_screen.dart';
+import 'package:bu9l7y/feature/auth/views/forgot_password_screen.dart';
 import 'package:bu9l7y/feature/auth/views/sign_up_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,6 +16,49 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignIn() async {
+    if (_isLoading) {
+      return;
+    }
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter email and password.')));
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const AppGround(initialIndex: 0)));
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Sign in failed.')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
                   color: const Color(0xFF294968),
                 ),
               ),
@@ -71,12 +115,18 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              const _SignInField(hint: 'Email or Phone Number', icon: Icons.email_outlined),
+              _SignInField(
+                hint: 'Email or Phone Number',
+                icon: Icons.email_outlined,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 12),
               _SignInField(
                 hint: 'Password',
                 icon: Icons.lock_outline_rounded,
                 obscureText: _obscurePassword,
+                controller: _passwordController,
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
@@ -117,7 +167,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OtpScreen()));
+                          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ForgotPasswordScreen()));
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF838383),
@@ -148,9 +198,7 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const AppGround(initialIndex: 0)));
-                  },
+                  onPressed: _handleSignIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF284968),
                     foregroundColor: Colors.white,
@@ -158,11 +206,17 @@ class _SignInScreenState extends State<SignInScreen> {
                     padding: const EdgeInsets.all(10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                   ),
-                  child: Text(
-                    'Login',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Colors.white, fontWeight: FontWeight.w400),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                        )
+                      : Text(
+                          'Login',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Colors.white, fontWeight: FontWeight.w400),
+                        ),
                 ),
               ),
               const Spacer(),
@@ -227,19 +281,30 @@ class _SignInScreenState extends State<SignInScreen> {
 }
 
 class _SignInField extends StatelessWidget {
-  const _SignInField({required this.hint, required this.icon, this.obscureText = false, this.suffixIcon});
+  const _SignInField({
+    required this.hint,
+    required this.icon,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.controller,
+    this.keyboardType,
+  });
 
   final String hint;
   final IconData icon;
   final bool obscureText;
   final Widget? suffixIcon;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 48,
       child: TextField(
+        controller: controller,
         obscureText: obscureText,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: GoogleFonts.outfit(fontSize: 12, height: 1.2, letterSpacing: 0, color: Color(0xFF6C6C6C), fontWeight: FontWeight.w400),

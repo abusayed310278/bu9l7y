@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67345152530",
+    "project_id": "itknowledgequiz",
+    "storage_bucket": "itknowledgequiz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67345152530:android:687778de6d650dff00f6cb",
+        "android_client_info": {
+          "package_name": "com.example.bu9l7y"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW0mA6G2AibYHHxEIuaVOOdPNKt4FEF9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

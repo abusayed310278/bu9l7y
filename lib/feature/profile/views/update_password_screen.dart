@@ -12,6 +12,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
   late final TextEditingController _currentController;
   late final TextEditingController _newController;
   late final TextEditingController _confirmController;
+  bool _obscureCurrentPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -66,15 +69,39 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
               const SizedBox(height: 24),
               const _FieldLabel('Current password'),
               const SizedBox(height: 8),
-              _PasswordField(controller: _currentController),
+              _PasswordField(
+                controller: _currentController,
+                obscureText: _obscureCurrentPassword,
+                onToggleVisibility: () {
+                  setState(() {
+                    _obscureCurrentPassword = !_obscureCurrentPassword;
+                  });
+                },
+              ),
               const SizedBox(height: 20),
               const _FieldLabel('New password'),
               const SizedBox(height: 8),
-              _PasswordField(controller: _newController),
+              _PasswordField(
+                controller: _newController,
+                obscureText: _obscureNewPassword,
+                onToggleVisibility: () {
+                  setState(() {
+                    _obscureNewPassword = !_obscureNewPassword;
+                  });
+                },
+              ),
               const SizedBox(height: 20),
               const _FieldLabel('Confirm password'),
               const SizedBox(height: 8),
-              _PasswordField(controller: _confirmController),
+              _PasswordField(
+                controller: _confirmController,
+                obscureText: _obscureConfirmPassword,
+                onToggleVisibility: () {
+                  setState(() {
+                    _obscureConfirmPassword = !_obscureConfirmPassword;
+                  });
+                },
+              ),
               const SizedBox(height: 28),
               SizedBox(
                 height: 48,
@@ -127,9 +154,15 @@ class _FieldLabel extends StatelessWidget {
 }
 
 class _PasswordField extends StatelessWidget {
-  const _PasswordField({required this.controller});
+  const _PasswordField({
+    required this.controller,
+    required this.obscureText,
+    required this.onToggleVisibility,
+  });
 
   final TextEditingController controller;
+  final bool obscureText;
+  final VoidCallback onToggleVisibility;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +170,7 @@ class _PasswordField extends StatelessWidget {
       height: 44,
       child: TextField(
         controller: controller,
-        obscureText: true,
+        obscureText: obscureText,
         style: GoogleFonts.outfit(
           fontSize: 16,
           height: 1.2,
@@ -147,7 +180,20 @@ class _PasswordField extends StatelessWidget {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFEBEBEB),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          contentPadding: const EdgeInsets.only(left: 12, right: 8),
+          suffixIcon: IconButton(
+            onPressed: onToggleVisibility,
+            splashRadius: 18,
+            icon: const Icon(
+              Icons.remove_red_eye_outlined,
+              size: 16,
+              color: Color(0xFF8A8A8A),
+            ),
+          ),
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,

@@ -1,13 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 base class ApiEndpoints {
-  static const String socketUrl = _LocalHostWifi.socketUrl;
+  static const String socketUrl = _RemoteServer.socketUrl;
 
-  static const String baseUrl = _LocalHostWifi.baseUrl;
-
-  // static const String socketUrl = _RemoteServer.socketUrl;
-
-  // static const String baseUrl = _RemoteServer.baseUrl;
+  static const String baseUrl = _RemoteServer.baseUrl;
 
   // ---------------------- AUTH -----------------------------
   static const String login = _Auth.login;
@@ -100,9 +96,9 @@ abstract class _Auth {
   // example
   static const String login = '$_authRoute/login';
   static const String register = '$_authRoute/register';
-  static const String forgetPassword = '$_authRoute/forget';
-  static const String verifyOtp = '$_authRoute/verify-otp';
-  static const String verifyEmail = '$_authRoute/verify';
+  static const String forgetPassword = '$_authRoute/forgot-password';
+  static const String verifyOtp = '$_authRoute/verify-email';
+  static const String verifyEmail = '$_authRoute/verify-email';
   static const String resetPassword = '$_authRoute/reset-password';
   static const String logout = '$_authRoute/logout';
   static const String changePassword = '$_authRoute/change-password';

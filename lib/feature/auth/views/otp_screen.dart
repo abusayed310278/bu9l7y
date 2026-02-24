@@ -1,18 +1,28 @@
 import 'package:bu9l7y/core/constants/assets.dart';
-import 'package:bu9l7y/feature/auth/views/forgot_password_screen.dart';
+import 'package:bu9l7y/core/network/error/error_message.dart';
+import 'package:bu9l7y/feature/auth/services/password_reset_api_service.dart';
+import 'package:bu9l7y/feature/auth/views/reset_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+  const OtpScreen({super.key, required this.email});
+
+  final String email;
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final PasswordResetApiService _passwordResetApiService =
+      PasswordResetApiService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -49,12 +59,19 @@ class _OtpScreenState extends State<OtpScreen> {
                   icon: const Icon(Icons.chevron_left_rounded, size: 24),
                   color: const Color(0xFF294968),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                  constraints: const BoxConstraints(
+                    minWidth: 24,
+                    minHeight: 24,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
               Center(
-                child: SizedBox(width: 60, height: 60, child: Image.asset(Images.appLogo, fit: BoxFit.contain)),
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Image.asset(Images.appLogo, fit: BoxFit.contain),
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -77,7 +94,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 width: 277,
                 height: 28,
                 child: Text(
-                  'Please check your Email for a message with your code. Your code is 6 numbers long.',
+                  'Please check ${widget.email} for your 6-digit verification code.',
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: GoogleFonts.outfit(
@@ -130,27 +147,38 @@ class _OtpScreenState extends State<OtpScreen> {
               SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ForgotPasswordScreen()));
-                  },
+                  onPressed: _verifyOtp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF284968),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                  ),
-                  child: Text(
-                    'Verify',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      height: 1.2,
-                      letterSpacing: 0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                     ),
                   ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Verify',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            height: 1.2,
+                            letterSpacing: 0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                 ),
               ),
               const Spacer(),
@@ -160,10 +188,68 @@ class _OtpScreenState extends State<OtpScreen> {
       ),
     );
   }
+
+  Future<void> _verifyOtp() async {
+    if (_isLoading) {
+      return;
+    }
+    final String otp = _controllers.map((c) => c.text.trim()).join();
+    if (otp.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter the full 6-digit OTP.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final Map<String, dynamic> response = await _passwordResetApiService
+          .verifyOtp(email: widget.email, otp: otp);
+      final Map<String, dynamic> data = response['data'] is Map
+          ? Map<String, dynamic>.from(response['data'] as Map)
+          : <String, dynamic>{};
+      final String? token = (data['token'] ?? data['resetToken'])?.toString();
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ResetPasswordScreen(
+            email: widget.email,
+            verificationToken: token,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ErrorMessage.from(e, fallback: 'OTP verification failed.'),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 }
 
 class _OtpBox extends StatelessWidget {
-  const _OtpBox({required this.controller, required this.focusNode, required this.onChanged});
+  const _OtpBox({
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+  });
 
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -190,8 +276,18 @@ class _OtpBox extends StatelessWidget {
         maxLength: 1,
         cursorHeight: 24,
         cursorWidth: 1.2,
-        style: GoogleFonts.outfit(fontSize: 26, height: 1, letterSpacing: 0, color: Color(0xFF284968), fontWeight: FontWeight.w500),
-        decoration: const InputDecoration(counterText: '', border: InputBorder.none, contentPadding: EdgeInsets.zero),
+        style: GoogleFonts.outfit(
+          fontSize: 26,
+          height: 1,
+          letterSpacing: 0,
+          color: Color(0xFF284968),
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: const InputDecoration(
+          counterText: '',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+        ),
       ),
     );
   }
