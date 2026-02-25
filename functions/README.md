@@ -10,7 +10,9 @@ This folder provides Firebase Cloud Functions for:
 - Firebase project with Authentication (Email/Password) enabled
 - Firestore enabled
 - Firebase CLI installed (`npm i -g firebase-tools`)
-- SendGrid account/API key for transactional email
+- One of:
+  - Gmail account + App Password (recommended for quick setup)
+  - SendGrid account/API key
 
 ## Setup
 
@@ -31,12 +33,20 @@ cd ..
 3. Set function secrets:
 
 ```bash
-firebase functions:secrets:set SENDGRID_API_KEY
 firebase functions:secrets:set OTP_FROM_EMAIL
+firebase functions:secrets:set OTP_GMAIL_APP_PASSWORD
 ```
 
-- `SENDGRID_API_KEY`: your SendGrid API key
-- `OTP_FROM_EMAIL`: verified sender email (example: `noreply@yourdomain.com`)
+- `OTP_FROM_EMAIL`: Gmail address that sends OTP (example: `yourname@gmail.com`)
+- `OTP_GMAIL_APP_PASSWORD`: 16-character Gmail App Password
+
+Optional fallback (if you prefer SendGrid):
+
+```bash
+firebase functions:secrets:set SENDGRID_API_KEY
+```
+
+- `SENDGRID_API_KEY`: SendGrid API key
 
 4. Deploy:
 

@@ -35,20 +35,35 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     icon: const Icon(Icons.arrow_back, size: 24),
                     color: const Color(0xFF1F2224),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     'Select Quiz Topics',
-                    style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      height: 1,
+                      color: Color(0xFF1F2224),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: () {},
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: const Color(0xFF1E8BD7)),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      foregroundColor: const Color(0xFF1E8BD7),
+                    ),
                     child: Text(
                       'See all',
-                      style: GoogleFonts.outfit(fontSize: 12, height: 1, fontWeight: FontWeight.w400),
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        height: 1,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ],
@@ -57,9 +72,11 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
             const SizedBox(height: 6),
             Expanded(
               child: ListView.separated(
+                physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 itemCount: _topics.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (BuildContext context, int index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final topic = _topics[index];
                   final bool selected = index == _selectedIndex;
@@ -92,11 +109,17 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     backgroundColor: const Color(0xFF284968),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
                   ),
                   child: Text(
                     'Continue',
-                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      height: 1.2,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -109,7 +132,11 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
 }
 
 class _TopicItem {
-  const _TopicItem({required this.title, required this.questions, required this.credits});
+  const _TopicItem({
+    required this.title,
+    required this.questions,
+    required this.credits,
+  });
 
   final String title;
   final int questions;
@@ -117,7 +144,11 @@ class _TopicItem {
 }
 
 class _TopicCard extends StatelessWidget {
-  const _TopicCard({required this.topic, required this.selected, required this.onTap});
+  const _TopicCard({
+    required this.topic,
+    required this.selected,
+    required this.onTap,
+  });
 
   final _TopicItem topic;
   final bool selected;
@@ -125,9 +156,13 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color bgColor = selected ? const Color(0xFF284968) : const Color(0xFFFFFFFF);
+    final Color bgColor = selected
+        ? const Color(0xFF284968)
+        : const Color(0xFFFFFFFF);
     final Color titleColor = selected ? Colors.white : const Color(0xFF1F2224);
-    final Color subtitleColor = selected ? const Color(0xFFE6EDF3) : const Color(0xFF6B7280);
+    final Color subtitleColor = selected
+        ? const Color(0xFFE6EDF3)
+        : const Color(0xFF6B7280);
 
     return InkWell(
       borderRadius: BorderRadius.circular(14),
@@ -137,7 +172,13 @@ class _TopicCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -147,12 +188,22 @@ class _TopicCard extends StatelessWidget {
                 children: [
                   Text(
                     topic.title,
-                    style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      height: 1.2,
+                      color: titleColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '${topic.questions} Questions  •  ${topic.credits} credits',
-                    style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: subtitleColor, fontWeight: FontWeight.w400),
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      height: 1.2,
+                      color: subtitleColor,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
@@ -177,8 +228,15 @@ class _SelectionIndicator extends StatelessWidget {
         width: 22,
         height: 22,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: const Icon(Icons.check_rounded, size: 14, color: Color(0xFF284968)),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.check_rounded,
+          size: 14,
+          color: Color(0xFF284968),
+        ),
       );
     }
     return Container(

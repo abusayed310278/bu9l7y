@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key, required this.email});
+  const OtpScreen({
+    super.key,
+    required this.email,
+  });
 
   final String email;
 
@@ -20,8 +23,6 @@ class _OtpScreenState extends State<OtpScreen> {
     (_) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  final PasswordResetApiService _passwordResetApiService =
-      PasswordResetApiService();
   bool _isLoading = false;
 
   @override
@@ -82,7 +83,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 24,
-                    height: 1.0,
+                    height: 1,
                     letterSpacing: 0,
                     color: const Color(0xFF284968),
                     fontWeight: FontWeight.w500,
@@ -132,7 +133,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 width: 332,
                 height: 21,
                 child: Text(
-                  'Resend code in 43s',
+                  'Use the OTP received by email',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 14,
@@ -193,6 +194,7 @@ class _OtpScreenState extends State<OtpScreen> {
     if (_isLoading) {
       return;
     }
+
     final String otp = _controllers.map((c) => c.text.trim()).join();
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,13 +206,19 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() {
       _isLoading = true;
     });
+
     try {
-      final Map<String, dynamic> response = await _passwordResetApiService
-          .verifyOtp(email: widget.email, otp: otp);
-      final Map<String, dynamic> data = response['data'] is Map
-          ? Map<String, dynamic>.from(response['data'] as Map)
-          : <String, dynamic>{};
-      final String? token = (data['token'] ?? data['resetToken'])?.toString();
+      final PasswordResetApiService passwordResetApiService =
+          PasswordResetApiService();
+      final Map<String, dynamic> result = await passwordResetApiService
+          .verifyOtp(
+            email: widget.email,
+            otp: otp,
+          );
+      final String token = (result['token'] ?? '').toString().trim();
+      if (token.isEmpty) {
+        throw Exception('Verification token missing.');
+      }
 
       if (!mounted) {
         return;
@@ -280,7 +288,7 @@ class _OtpBox extends StatelessWidget {
           fontSize: 26,
           height: 1,
           letterSpacing: 0,
-          color: Color(0xFF284968),
+          color: const Color(0xFF284968),
           fontWeight: FontWeight.w500,
         ),
         decoration: const InputDecoration(

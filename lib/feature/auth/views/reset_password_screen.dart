@@ -9,11 +9,11 @@ class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({
     super.key,
     required this.email,
-    this.verificationToken,
+    required this.verificationToken,
   });
 
   final String email;
-  final String? verificationToken;
+  final String verificationToken;
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -23,8 +23,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  final PasswordResetApiService _passwordResetApiService =
-      PasswordResetApiService();
 
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
@@ -72,7 +70,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     });
 
     try {
-      await _passwordResetApiService.resetPassword(
+      final PasswordResetApiService passwordResetApiService =
+          PasswordResetApiService();
+
+      await passwordResetApiService.resetPassword(
         email: widget.email,
         newPassword: newPassword,
         confirmPassword: confirmPassword,

@@ -1,10 +1,99 @@
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/credits/views/payment_result_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PaymentMethodScreen extends StatelessWidget {
-  const PaymentMethodScreen({super.key});
+class PaymentMethodScreen extends StatefulWidget {
+  const PaymentMethodScreen({
+    super.key,
+    required this.purchasedCredits,
+    required this.priceLabel,
+  });
+
+  final int purchasedCredits;
+  final String priceLabel;
+
+  @override
+  State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
+}
+
+class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
+  bool _isSubmitting = false;
+
+  Future<void> _handlePurchase() async {
+    if (_isSubmitting) return;
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please login again.')));
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final DocumentReference<Map<String, dynamic>> userDoc = FirebaseFirestore
+          .instance
+          .collection('users')
+          .doc(user.uid);
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final DocumentSnapshot<Map<String, dynamic>> snapshot = await transaction
+            .get(userDoc);
+        final Map<String, dynamic> data = snapshot.data() ?? <String, dynamic>{};
+        final int currentCredits = _readInt(
+          data['credits'] ?? data['creditBalance'],
+        );
+        final int nextCredits = currentCredits + widget.purchasedCredits;
+
+        transaction.set(userDoc, {
+          'credits': nextCredits,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        final DocumentReference<Map<String, dynamic>> historyRef = userDoc
+            .collection('creditPurchases')
+            .doc();
+        transaction.set(historyRef, {
+          'creditsAdded': widget.purchasedCredits,
+          'price': widget.priceLabel,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => PaymentResultScreen(
+            success: true,
+            purchasedCredits: widget.purchasedCredits,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Payment failed. Please try again.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  int _readInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.round();
+    if (value is String) return int.tryParse(value.trim()) ?? 0;
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,25 +164,32 @@ class PaymentMethodScreen extends StatelessWidget {
                     height: 48,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const PaymentResultScreen(
-                              success: true,
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: _isSubmitting ? null : _handlePurchase,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF284968),
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                       ),
-                      child: Text(
-                        'Continue With Apple Pay',
-                        style: GoogleFonts.outfit(fontSize: 16, height: 1.2, fontWeight: FontWeight.w400),
-                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              'Continue With Apple Pay',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                height: 1.2,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 10),

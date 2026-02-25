@@ -1,6 +1,9 @@
+import 'package:bu9l7y/app_ground.dart';
 import 'package:bu9l7y/feature/onboarding/views/onboarding_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 
@@ -15,9 +18,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Onboarding',
+      scrollBehavior: const _AppScrollBehavior(),
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFF7F8FA),
         textTheme: GoogleFonts.outfitTextTheme(),
@@ -35,7 +39,38 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const OnboardingScreen(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snapshot.data != null) {
+            return const AppGround(initialIndex: 0);
+          }
+          return const OnboardingScreen();
+        },
+      ),
     );
+  }
+}
+
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const ClampingScrollPhysics();
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
   }
 }

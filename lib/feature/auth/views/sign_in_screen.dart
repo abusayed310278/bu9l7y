@@ -1,7 +1,9 @@
 import 'package:bu9l7y/app_ground.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
+import 'package:bu9l7y/core/network/api_service/token_meneger.dart';
 import 'package:bu9l7y/feature/auth/views/forgot_password_screen.dart';
 import 'package:bu9l7y/feature/auth/views/sign_up_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,10 +23,37 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadRememberedCredentials();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final bool rememberMeEnabled = await TokenManager.isRememberMeEnabled();
+    if (!rememberMeEnabled) {
+      return;
+    }
+
+    final String? rememberedEmail = await TokenManager.getRememberedEmail();
+    final String? rememberedPassword =
+        await TokenManager.getRememberedPassword();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _rememberMe = true;
+      _emailController.text = rememberedEmail ?? '';
+      _passwordController.text = rememberedPassword ?? '';
+    });
   }
 
   Future<void> _handleSignIn() async {
@@ -34,23 +63,79 @@ class _SignInScreenState extends State<SignInScreen> {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text;
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter email and password.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password.')),
+      );
       return;
     }
     setState(() {
       _isLoading = true;
     });
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      final UserCredential credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final User? user = credential.user;
+      if (user != null) {
+        final DocumentReference<Map<String, dynamic>> userDoc = FirebaseFirestore
+            .instance
+            .collection('users')
+            .doc(user.uid);
+        final String photoUrl = (user.photoURL ?? '').trim();
+        final Map<String, dynamic> payload = <String, dynamic>{
+          'userId': user.uid,
+          'uid': user.uid,
+          'email': (user.email ?? email).trim(),
+          'role': 'user',
+          'updatedAt': FieldValue.serverTimestamp(),
+          'lastLoginAt': FieldValue.serverTimestamp(),
+        };
+        if (photoUrl.isNotEmpty) {
+          payload['image'] = photoUrl;
+          payload['avatarUrl'] = photoUrl;
+        } else {
+          final DocumentSnapshot<Map<String, dynamic>> snapshot = await userDoc
+              .get();
+          final Map<String, dynamic>? data = snapshot.data();
+          if (data?['image'] == '') {
+            payload['image'] = FieldValue.delete();
+          }
+          if (data?['avatarUrl'] == '') {
+            payload['avatarUrl'] = FieldValue.delete();
+          }
+        }
+        await userDoc.set(payload, SetOptions(merge: true));
+      }
+
+      if (_rememberMe) {
+        await TokenManager.setRememberMe(true);
+        await TokenManager.saveRememberedCredentials(
+          email: email,
+          password: password,
+        );
+      } else {
+        await TokenManager.setRememberMe(false);
+        await TokenManager.clearRememberedCredentials();
+      }
+
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const AppGround(initialIndex: 0)));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => const AppGround(initialIndex: 0),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Sign in failed.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Sign in failed.')));
     } finally {
       if (mounted) {
         setState(() {
@@ -79,7 +164,11 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               const SizedBox(height: 24),
               Center(
-                child: SizedBox(width: 60, height: 60, child: Image.asset(Images.appLogo, fit: BoxFit.contain)),
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Image.asset(Images.appLogo, fit: BoxFit.contain),
+                ),
               ),
               const SizedBox(height: 22),
               SizedBox(
@@ -134,7 +223,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     });
                   },
                   splashRadius: 18,
-                  icon: const Icon(Icons.remove_red_eye_outlined, size: 16, color: Color(0xFF8A8A8A)),
+                  icon: const Icon(
+                    Icons.remove_red_eye_outlined,
+                    size: 16,
+                    color: Color(0xFF8A8A8A),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -150,15 +243,25 @@ class _SignInScreenState extends State<SignInScreen> {
                           _rememberMe = value ?? false;
                         });
                       },
-                      side: const BorderSide(color: Color(0xFF8A8A8A), width: 1),
+                      side: const BorderSide(
+                        color: Color(0xFF8A8A8A),
+                        width: 1,
+                      ),
                       activeColor: const Color(0xFF284968),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     'Remember me',
-                    style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF7D7D7D), fontWeight: FontWeight.w400),
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      height: 1.2,
+                      color: Color(0xFF7D7D7D),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   const Spacer(),
                   SizedBox(
@@ -167,7 +270,11 @@ class _SignInScreenState extends State<SignInScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ForgotPasswordScreen()));
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ForgotPasswordScreen(),
+                            ),
+                          );
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF838383),
@@ -204,18 +311,30 @@ class _SignInScreenState extends State<SignInScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
                         )
                       : Text(
                           'Login',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Colors.white, fontWeight: FontWeight.w400),
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            height: 1.2,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                 ),
               ),
@@ -253,7 +372,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SignUpScreen()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SignUpScreen(),
+                              ),
+                            );
                           },
                           child: Text(
                             'Sign up',
@@ -307,14 +430,31 @@ class _SignInField extends StatelessWidget {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.outfit(fontSize: 12, height: 1.2, letterSpacing: 0, color: Color(0xFF6C6C6C), fontWeight: FontWeight.w400),
-          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+          hintStyle: GoogleFonts.outfit(
+            fontSize: 12,
+            height: 1.2,
+            letterSpacing: 0,
+            color: Color(0xFF6C6C6C),
+            fontWeight: FontWeight.w400,
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
           prefixIcon: Padding(
             padding: const EdgeInsets.only(left: 16, right: 8),
             child: Icon(icon, size: 16, color: const Color(0xFF7D7D7D)),
           ),
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-          suffixIcon: suffixIcon == null ? null : Padding(padding: const EdgeInsets.only(right: 14), child: suffixIcon),
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
+          suffixIcon: suffixIcon == null
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: suffixIcon,
+                ),
           contentPadding: const EdgeInsets.only(top: 12, right: 16, bottom: 12),
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Color(0xFFCECECE), width: 1),

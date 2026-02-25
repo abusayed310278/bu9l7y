@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({super.key, this.initialEmail});
+
+  final String? initialEmail;
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -14,9 +16,13 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final PasswordResetApiService _passwordResetApiService =
-      PasswordResetApiService();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = (widget.initialEmail ?? '').trim();
+  }
 
   @override
   void dispose() {
@@ -24,35 +30,46 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  bool _isValidEmail(String value) {
+    return RegExp(r'^\S+@\S+\.\S+$').hasMatch(value);
+  }
+
   Future<void> _handleSendOtp() async {
     if (_isLoading) {
       return;
     }
-    final String email = _emailController.text.trim();
-    if (email.isEmpty || !email.contains('@')) {
+
+    final String email = _emailController.text.trim().toLowerCase();
+    if (!_isValidEmail(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid email address.')),
       );
       return;
     }
+
     setState(() {
       _isLoading = true;
     });
+
     try {
-      await _passwordResetApiService.sendOtp(email: email);
+      final PasswordResetApiService passwordResetApiService =
+          PasswordResetApiService();
+      await passwordResetApiService.sendOtp(email: email);
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('OTP sent to your email.')));
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (_) => OtpScreen(email: email)));
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => OtpScreen(email: email),
+        ),
+      );
     } catch (e) {
       if (!mounted) {
         return;
       }
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -60,12 +77,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 
@@ -120,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 width: 277,
                 height: 28,
                 child: Text(
-                  'Enter your email and we will send a 6-digit OTP to verify your account.',
+                  'Enter your email and we will send a 6-digit OTP.',
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: GoogleFonts.outfit(
@@ -133,7 +144,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 22),
-              _RoundedEmailField(hint: 'Email', controller: _emailController),
+              _RoundedEmailField(
+                hint: 'Email address',
+                controller: _emailController,
+              ),
               const SizedBox(height: 34),
               SizedBox(
                 height: 48,
@@ -202,7 +216,7 @@ class _RoundedEmailField extends StatelessWidget {
             fontSize: 12,
             height: 1.2,
             letterSpacing: 0,
-            color: Color(0xFF6C6C6C),
+            color: const Color(0xFF6C6C6C),
             fontWeight: FontWeight.w400,
           ),
           prefixIconConstraints: const BoxConstraints(
@@ -217,7 +231,7 @@ class _RoundedEmailField extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: Icon(
-                  Icons.email_outlined,
+                  Icons.mail_outline_rounded,
                   size: 16,
                   color: Color(0xFF6C6C6C),
                 ),

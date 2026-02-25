@@ -1,6 +1,7 @@
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/core/common/widgets/custom_snackbar.dart';
 import 'package:bu9l7y/feature/auth/views/sign_in_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,6 +58,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
+      final User? user = userCredential.user;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'userId': user.uid,
+          'uid': user.uid,
+          'fullName': name,
+          'email': email,
+          'phone': user.phoneNumber ?? '',
+          'role': 'user',
+          'status': 'Active',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'lastLoginAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
       await userCredential.user?.updateDisplayName(name);
       if (!mounted) {
         return;

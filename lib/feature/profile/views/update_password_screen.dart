@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:bu9l7y/core/network/api_service/token_meneger.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
   bool _obscureCurrentPassword = true;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -30,6 +33,125 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     _newController.dispose();
     _confirmController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleUpdatePassword() async {
+    if (_isLoading) {
+      return;
+    }
+
+    final String currentPassword = _currentController.text;
+    final String newPassword = _newController.text;
+    final String confirmPassword = _confirmController.text;
+
+    if (currentPassword.isEmpty ||
+        newPassword.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all password fields.')),
+      );
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('New password must be at least 6 characters.'),
+        ),
+      );
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match.')));
+      return;
+    }
+
+    if (newPassword == currentPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'New password must be different from current password.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String? email = user?.email;
+
+    if (user == null || email == null || email.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please login again and try.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final AuthCredential credential = EmailAuthProvider.credential(
+        email: email,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+
+      final bool rememberMe = await TokenManager.isRememberMeEnabled();
+      if (rememberMe) {
+        await TokenManager.saveRememberedCredentials(
+          email: email,
+          password: newPassword,
+        );
+      }
+
+      _currentController.clear();
+      _newController.clear();
+      _confirmController.clear();
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password updated successfully.')),
+      );
+      Navigator.of(context).pop();
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      String message = 'Failed to update password.';
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        message = 'Current password is incorrect.';
+      } else if (e.code == 'weak-password') {
+        message = 'New password is too weak.';
+      } else if (e.code == 'requires-recent-login') {
+        message = 'Please login again and try.';
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update password.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -66,63 +188,85 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              const _FieldLabel('Current password'),
-              const SizedBox(height: 8),
-              _PasswordField(
-                controller: _currentController,
-                obscureText: _obscureCurrentPassword,
-                onToggleVisibility: () {
-                  setState(() {
-                    _obscureCurrentPassword = !_obscureCurrentPassword;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              const _FieldLabel('New password'),
-              const SizedBox(height: 8),
-              _PasswordField(
-                controller: _newController,
-                obscureText: _obscureNewPassword,
-                onToggleVisibility: () {
-                  setState(() {
-                    _obscureNewPassword = !_obscureNewPassword;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              const _FieldLabel('Confirm password'),
-              const SizedBox(height: 8),
-              _PasswordField(
-                controller: _confirmController,
-                obscureText: _obscureConfirmPassword,
-                onToggleVisibility: () {
-                  setState(() {
-                    _obscureConfirmPassword = !_obscureConfirmPassword;
-                  });
-                },
-              ),
-              const SizedBox(height: 28),
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF284968),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Save',
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      height: 1.2,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                    ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 24),
+                      const _FieldLabel('Current password'),
+                      const SizedBox(height: 8),
+                      _PasswordField(
+                        controller: _currentController,
+                        obscureText: _obscureCurrentPassword,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _obscureCurrentPassword = !_obscureCurrentPassword;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const _FieldLabel('New password'),
+                      const SizedBox(height: 8),
+                      _PasswordField(
+                        controller: _newController,
+                        obscureText: _obscureNewPassword,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _obscureNewPassword = !_obscureNewPassword;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const _FieldLabel('Confirm password'),
+                      const SizedBox(height: 8),
+                      _PasswordField(
+                        controller: _confirmController,
+                        obscureText: _obscureConfirmPassword,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 28),
+                      SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _handleUpdatePassword,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF284968),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  'Save',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    height: 1.2,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
                 ),
               ),

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:bu9l7y/core/constants/assets.dart';
 import 'package:bu9l7y/feature/auth/views/sign_in_screen.dart';
 import 'package:bu9l7y/feature/profile/views/account_settings_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,40 +17,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 24),
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 74,
-                  height: 74,
-                  decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFD4C8BE)),
-                  child: const Icon(Icons.person_rounded, size: 42, color: Color(0xFF6E5F55)),
-                ),
-                Positioned(
-                  right: -2,
-                  bottom: -2,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    padding: const EdgeInsets.all(4),
-                    // decoration: BoxDecoration(
-                    //   color: const Color(0xFF284968),
-                    //   borderRadius: BorderRadius.circular(6),
-                    //   border: Border.all(
-                    //     color: const Color(0xFFF7F8FA),
-                    //     width: 1.5,
-                    //   ),
-                    // ),
-                    child: Image.asset(Images.edit),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Bu Ahmed',
-              style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF000000), fontWeight: FontWeight.w500),
-            ),
+            _ProfileHeader(),
             const SizedBox(height: 48),
             Align(
               alignment: Alignment.centerLeft,
@@ -57,7 +26,12 @@ class ProfileScreen extends StatelessWidget {
                 height: 20,
                 child: Text(
                   'Settings',
-                  style: GoogleFonts.outfit(fontSize: 16, height: 1, color: const Color(0xFF1F2224), fontWeight: FontWeight.w500),
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    height: 1,
+                    color: const Color(0xFF1F2224),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -65,9 +39,17 @@ class ProfileScreen extends StatelessWidget {
             _settingTile(
               iconPath: Images.settings,
               title: 'Account Settings',
-              trailing: const Icon(Icons.chevron_right_rounded, size: 24, color: Color(0xFF888C92)),
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                size: 24,
+                color: Color(0xFF888C92),
+              ),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AccountSettingsScreen()));
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AccountSettingsScreen(),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 12),
@@ -99,7 +81,13 @@ class ProfileScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: const [BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 3))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -108,7 +96,12 @@ class ProfileScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: titleColor, fontWeight: FontWeight.w400),
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  height: 1.2,
+                  color: titleColor,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             ...?(trailing == null ? null : <Widget>[trailing]),
@@ -132,20 +125,36 @@ class ProfileScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 12, offset: Offset(0, 4))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1A000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Are you sure want to Log out',
-                  style: GoogleFonts.outfit(fontSize: 16, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w600),
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    height: 1.2,
+                    color: Color(0xFF1F2224),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'Tap log out to Log out from this app.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF111111), fontWeight: FontWeight.w400),
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    height: 1.2,
+                    color: Color(0xFF111111),
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Row(
@@ -159,9 +168,17 @@ class ProfileScreen extends StatelessWidget {
                             backgroundColor: const Color(0xFFD9D9D9),
                             foregroundColor: const Color(0xFF1F2224),
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          child: Text('Cancel', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500)),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -170,19 +187,34 @@ class ProfileScreen extends StatelessWidget {
                       child: SizedBox(
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.of(dialogContext).pop();
-                            Navigator.of(
-                              context,
-                            ).pushAndRemoveUntil(MaterialPageRoute<void>(builder: (_) => const SignInScreen()), (route) => false);
+                            await FirebaseAuth.instance.signOut();
+                            if (!context.mounted) {
+                              return;
+                            }
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SignInScreen(),
+                              ),
+                              (route) => false,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFEA002A),
                             foregroundColor: Colors.white,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          child: Text('Log out', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500)),
+                          child: Text(
+                            'Log out',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -194,5 +226,114 @@ class ProfileScreen extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: user == null
+          ? null
+          : FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .snapshots(),
+      builder: (context, snapshot) {
+        final Map<String, dynamic>? data = snapshot.data?.data();
+        final String name = _readName(data, user);
+        final String imageUrl = _readImageUrl(data, user);
+
+        return Column(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 74,
+                  height: 74,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFD4C8BE),
+                  ),
+                  child: imageUrl.isNotEmpty
+                      ? ClipOval(
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            width: 74,
+                            height: 74,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.person_rounded,
+                              size: 42,
+                              color: Color(0xFF6E5F55),
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person_rounded,
+                          size: 42,
+                          color: Color(0xFF6E5F55),
+                        ),
+                ),
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    padding: const EdgeInsets.all(4),
+                    child: Image.asset(Images.edit),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              name,
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                height: 1.2,
+                color: const Color(0xFF000000),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _readName(Map<String, dynamic>? data, User? user) {
+    final String firestoreName = (data?['fullName'] as String?)?.trim() ?? '';
+    final String authName = (user?.displayName ?? '').trim();
+    if (firestoreName.isNotEmpty) {
+      return firestoreName;
+    }
+    if (authName.isNotEmpty) {
+      return authName;
+    }
+    return 'User';
+  }
+
+  String _readImageUrl(Map<String, dynamic>? data, User? user) {
+    final List<String> keys = <String>[
+      'image',
+      'avatarUrl',
+      'photoURL',
+      'photoUrl',
+      'imageUrl',
+    ];
+    for (final String key in keys) {
+      final String value = (data?[key] as String?)?.trim() ?? '';
+      if (value.isNotEmpty) {
+        return value;
+      }
+    }
+    return (user?.photoURL ?? '').trim();
   }
 }

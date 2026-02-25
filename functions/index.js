@@ -2,13 +2,13 @@ const crypto = require('crypto');
 const admin = require('firebase-admin');
 const {onCall, HttpsError} = require('firebase-functions/v2/https');
 const {defineSecret} = require('firebase-functions/params');
-const sendGridMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 
 admin.initializeApp();
 
 const db = admin.firestore();
-const SENDGRID_API_KEY = defineSecret('SENDGRID_API_KEY');
 const OTP_FROM_EMAIL = defineSecret('OTP_FROM_EMAIL');
+const OTP_GMAIL_APP_PASSWORD = defineSecret('OTP_GMAIL_APP_PASSWORD');
 const OTP_COLLECTION = 'password_reset_otps';
 const OTP_TTL_MS = 10 * 60 * 1000;
 const TOKEN_TTL_MS = 10 * 60 * 1000;
@@ -22,6 +22,22 @@ function assertValidEmail(email) {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     throw new HttpsError('invalid-argument', 'Please provide a valid email.');
   }
+}
+
+function normalizePhone(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function phonesMatch(a, b) {
+  const p1 = normalizePhone(a);
+  const p2 = normalizePhone(b);
+  if (!p1 || !p2) {
+    return false;
+  }
+  if (p1 === p2) {
+    return true;
+  }
+  return p1.endsWith(p2) || p2.endsWith(p1);
 }
 
 function buildOtpHash(otp, salt) {
@@ -40,19 +56,64 @@ function randomToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-async function sendOtpEmail({apiKey, fromEmail, toEmail, otp}) {
-  sendGridMail.setApiKey(apiKey);
-  await sendGridMail.send({
-    to: toEmail,
+function readSecret(secretParam) {
+  try {
+    return String(secretParam.value() || '').trim();
+  } catch (error) {
+    return '';
+  }
+}
+
+async function sendOtpEmailWithGmail({fromEmail, appPassword, toEmail, otp}) {
+  const normalizedPassword = String(appPassword || '').replace(/\s+/g, '');
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: fromEmail,
+      pass: normalizedPassword,
+    },
+  });
+
+  await transporter.sendMail({
     from: fromEmail,
+    to: toEmail,
     subject: 'Your password reset OTP',
     text: `Your OTP is ${otp}. It expires in 10 minutes.`,
     html: `<p>Your OTP is <strong>${otp}</strong>.</p><p>It expires in 10 minutes.</p>`,
   });
 }
 
+function mapMailerErrorToMessage(error) {
+  const code = String(error?.code || '').toUpperCase();
+  const responseCode = Number(error?.responseCode || 0);
+  const response = String(error?.response || '').toLowerCase();
+
+  if (code === 'EAUTH' || responseCode === 535 || response.includes('badcredentials')) {
+    return {
+      code: 'failed-precondition',
+      message: 'Email auth failed. Check OTP_FROM_EMAIL and OTP_GMAIL_APP_PASSWORD secrets.',
+    };
+  }
+  if (code === 'EENVELOPE' || responseCode === 553) {
+    return {
+      code: 'failed-precondition',
+      message: 'Sender email is invalid. Check OTP_FROM_EMAIL secret.',
+    };
+  }
+  if (code === 'ETIMEDOUT' || code === 'ECONNECTION') {
+    return {
+      code: 'deadline-exceeded',
+      message: 'Email service timeout. Please try again.',
+    };
+  }
+  return {
+    code: 'unknown',
+    message: 'Failed to send OTP email.',
+  };
+}
+
 exports.sendPasswordResetOtp = onCall(
-  {secrets: [SENDGRID_API_KEY, OTP_FROM_EMAIL]},
+  {secrets: [OTP_FROM_EMAIL, OTP_GMAIL_APP_PASSWORD]},
   async (request) => {
     const email = normalizeEmail(request.data?.email);
     assertValidEmail(email);
@@ -84,21 +145,44 @@ exports.sendPasswordResetOtp = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    const apiKey = SENDGRID_API_KEY.value();
-    const fromEmail = OTP_FROM_EMAIL.value();
+    const fromEmail = readSecret(OTP_FROM_EMAIL);
+    const gmailAppPassword = readSecret(OTP_GMAIL_APP_PASSWORD);
 
-    if (!apiKey || !fromEmail) {
+    if (!fromEmail) {
       throw new HttpsError(
         'failed-precondition',
-        'Email provider is not configured on the server.'
+        'OTP_FROM_EMAIL is not configured on the server.'
+      );
+    }
+    if (!/^\S+@\S+\.\S+$/.test(fromEmail)) {
+      throw new HttpsError(
+        'failed-precondition',
+        'OTP_FROM_EMAIL is invalid. Set a valid Gmail address.'
       );
     }
 
     try {
-      await sendOtpEmail({apiKey, fromEmail, toEmail: email, otp});
+      if (!gmailAppPassword) {
+        throw new HttpsError(
+          'failed-precondition',
+          'OTP_GMAIL_APP_PASSWORD is not configured on the server.'
+        );
+      }
+      await sendOtpEmailWithGmail({
+        fromEmail,
+        appPassword: gmailAppPassword,
+        toEmail: email,
+        otp,
+      });
       return {success: true, message: 'OTP sent successfully.'};
     } catch (error) {
-      throw new HttpsError('internal', 'Failed to send OTP email.');
+      const mapped = mapMailerErrorToMessage(error);
+      console.error('sendPasswordResetOtp mail error', {
+        message: error?.message,
+        code: error?.code,
+        responseCode: error?.responseCode,
+      });
+      throw new HttpsError(mapped.code, mapped.message);
     }
   }
 );
@@ -220,6 +304,94 @@ exports.resetPasswordWithOtp = onCall(async (request) => {
 
   await admin.auth().updateUser(user.uid, {password: newPassword});
   await docRef.delete();
+
+  return {success: true, message: 'Password reset successful.'};
+});
+
+exports.resetPasswordWithPhoneOtp = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Phone verification is required.');
+  }
+
+  const authPhone = String(request.auth.token.phone_number || '').trim();
+  const requestedPhone = String(request.data?.phone || '').trim();
+  const newPassword = String(request.data?.newPassword || '');
+  const confirmPassword = String(request.data?.confirmPassword || '');
+
+  if (!authPhone) {
+    throw new HttpsError(
+      'permission-denied',
+      'Signed-in phone number is missing.'
+    );
+  }
+  if (!phonesMatch(authPhone, requestedPhone)) {
+    throw new HttpsError(
+      'permission-denied',
+      'Phone verification does not match the requested number.'
+    );
+  }
+  if (newPassword.length < 6) {
+    throw new HttpsError(
+      'invalid-argument',
+      'New password must be at least 6 characters.'
+    );
+  }
+  if (newPassword !== confirmPassword) {
+    throw new HttpsError('invalid-argument', 'Passwords do not match.');
+  }
+
+  const candidates = [
+    requestedPhone,
+    authPhone,
+    normalizePhone(requestedPhone),
+    normalizePhone(authPhone),
+  ].filter((value) => String(value || '').trim().length > 0);
+
+  let profileDoc;
+  for (const candidate of candidates) {
+    const snapshot = await db
+      .collection('users')
+      .where('phone', '==', candidate)
+      .limit(1)
+      .get();
+    if (!snapshot.empty) {
+      profileDoc = snapshot.docs[0];
+      break;
+    }
+  }
+
+  if (!profileDoc) {
+    throw new HttpsError(
+      'not-found',
+      'No account profile found for this phone number.'
+    );
+  }
+
+  const profile = profileDoc.data() || {};
+  const profilePhone = String(profile.phone || '').trim();
+  const email = normalizeEmail(profile.email);
+
+  if (!phonesMatch(authPhone, profilePhone)) {
+    throw new HttpsError(
+      'permission-denied',
+      'Phone number does not match account profile.'
+    );
+  }
+  if (!email) {
+    throw new HttpsError(
+      'failed-precondition',
+      'No email is linked with this phone number.'
+    );
+  }
+
+  let user;
+  try {
+    user = await admin.auth().getUserByEmail(email);
+  } catch (error) {
+    throw new HttpsError('not-found', 'No account found for this profile.');
+  }
+
+  await admin.auth().updateUser(user.uid, {password: newPassword});
 
   return {success: true, message: 'Password reset successful.'};
 });

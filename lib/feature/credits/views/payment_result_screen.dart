@@ -4,14 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PaymentResultScreen extends StatelessWidget {
-  const PaymentResultScreen({super.key, required this.success});
+  const PaymentResultScreen({
+    super.key,
+    required this.success,
+    this.purchasedCredits = 0,
+  });
 
   final bool success;
+  final int purchasedCredits;
 
   @override
   Widget build(BuildContext context) {
     final String title = success ? 'Successfully Purchase' : 'Purchase Failed';
-    final String subtitle = success ? 'You have successfully purchase\n150 credits' : 'Try again after few moments';
+    final String subtitle = success
+        ? 'You have successfully purchase\n$purchasedCredits credits'
+        : 'Try again after few moments';
     final String buttonText = success ? 'Back To Home' : 'Try Again';
     final String iconAsset = success ? Images.success : Images.failed;
 
@@ -45,10 +52,9 @@ class PaymentResultScreen extends StatelessWidget {
               decoration: BoxDecoration(color: const Color(0xFF284968), borderRadius: BorderRadius.circular(20)),
               child: Column(
                 children: [
-                  Container(
+                  SizedBox(
                     width: 44,
                     height: 44,
-                    // decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                     child: Center(child: Image.asset(iconAsset, width: 38, height: 38)),
                   ),
                   const SizedBox(height: 14),
