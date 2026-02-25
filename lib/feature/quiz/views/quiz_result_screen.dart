@@ -4,10 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class QuizResultScreen extends StatelessWidget {
-  const QuizResultScreen({super.key});
+  const QuizResultScreen({
+    super.key,
+    required this.totalQuestions,
+    required this.correctAnswers,
+    required this.topicTitle,
+    required this.reviewItems,
+  });
+
+  final int totalQuestions;
+  final int correctAnswers;
+  final String topicTitle;
+  final List<ReviewAnswerItem> reviewItems;
 
   @override
   Widget build(BuildContext context) {
+    final double percent = totalQuestions == 0
+        ? 0
+        : (correctAnswers / totalQuestions).clamp(0, 1);
+    final int scorePct = (percent * 100).round();
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -25,7 +41,7 @@ class QuizResultScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Question 5 of 5',
+                    'Question $totalQuestions of $totalQuestions',
                     style: GoogleFonts.outfit(fontSize: 16, height: 1, color: Color(0xFF1F2224), fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -50,30 +66,34 @@ class QuizResultScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: Column(
                   children: [
-                    _ScoreRing(percent: 0.6, label: 'Score', valueText: '60%'),
+                    _ScoreRing(
+                      percent: percent,
+                      label: 'Score',
+                      valueText: '$scorePct%',
+                    ),
                     const SizedBox(height: 18),
-                    const _ResultTile(
+                    _ResultTile(
                       icon: Icons.track_changes_outlined,
                       iconBg: Color(0xFFE8F2FF),
                       iconColor: Color(0xFF1E8BD7),
                       title: 'Total Questions',
-                      value: '5',
+                      value: '$totalQuestions',
                     ),
                     const SizedBox(height: 12),
-                    const _ResultTile(
+                    _ResultTile(
                       icon: Icons.check_circle_outline_rounded,
                       iconBg: Color(0xFFE8FFF0),
                       iconColor: Color(0xFF2BB673),
                       title: 'Correct Answers',
-                      value: '3',
+                      value: '$correctAnswers',
                     ),
                     const SizedBox(height: 12),
-                    const _ResultTile(
+                    _ResultTile(
                       icon: Icons.emoji_events_outlined,
                       iconBg: Color(0xFFF2ECFF),
                       iconColor: Color(0xFF9B59FF),
                       title: 'Topics',
-                      value: 'Computer System',
+                      value: topicTitle,
                     ),
                     const SizedBox(height: 18),
                     SizedBox(
@@ -83,7 +103,8 @@ class QuizResultScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
-                              builder: (_) => const ReviewAnswersScreen(),
+                              builder: (_) =>
+                                  ReviewAnswersScreen(items: reviewItems),
                             ),
                           );
                         },

@@ -6,8 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _showAllRecentActivity = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,12 +132,6 @@ class HomeScreen extends StatelessWidget {
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
-                                  const Spacer(),
-                                  const Icon(
-                                    Icons.account_balance_wallet_rounded,
-                                    size: 22,
-                                    color: Color(0xFF284968),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -164,12 +165,14 @@ class HomeScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.error_rounded,
-                                    color: Color(0xFFFF1E1E),
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
+                                  if (credits <= 50) ...[
+                                    const Icon(
+                                      Icons.error_rounded,
+                                      color: Color(0xFFFF1E1E),
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
                                   Text(
                                     credits <= 50
                                         ? 'Low Credit Balance'
@@ -213,73 +216,129 @@ class HomeScreen extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      'Your Progress',
-                      style: GoogleFonts.outfit(
-                        fontSize: 20,
-                        height: 22 / 20,
-                        color: Color(0xFF3C3C43),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Row(
-                      children: [
-                        Expanded(
-                          child: _ProgressCard(
-                            iconPath: Images.quizz,
-                            value: '24',
-                            label: 'Quizzes Taken',
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: _ProgressCard(
-                            iconPath: Images.avg,
-                            value: '88%',
-                            label: 'Avg. Accuracy',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Recent Activity',
-                            style: GoogleFonts.outfit(
-                              fontSize: 20,
-                              height: 22 / 20,
-                              color: const Color(0xFF3C3C43),
-                              fontWeight: FontWeight.w500,
+                    StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                      stream: user == null
+                          ? null
+                          : FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(user.uid)
+                                .collection('quizAttempts')
+                                .orderBy('createdAt', descending: true)
+                                .limit(30)
+                                .snapshots(),
+                      builder: (context, snapshot) {
+                        final List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                            docs = snapshot.data?.docs ?? const [];
+                        final int totalQuizzes = docs.length;
+                        double average = 0;
+                        if (docs.isNotEmpty) {
+                          double sum = 0;
+                          for (final doc in docs) {
+                            sum += _readDouble(doc.data()['scorePercent']);
+                          }
+                          average = sum / docs.length;
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your Progress',
+                              style: GoogleFonts.outfit(
+                                fontSize: 20,
+                                height: 22 / 20,
+                                color: const Color(0xFF3C3C43),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        ),
-                        Text(
-                          'View All',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            height: 1,
-                            color: const Color(0xFF3C3C43),
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const _ActivityTile(
-                      icon: Icons.science_outlined,
-                      title: 'General Science Quiz',
-                      subtitle: '2 hours ago',
-                      score: '9/10',
-                    ),
-                    const SizedBox(height: 10),
-                    const _ActivityTile(
-                      icon: Icons.calculate_outlined,
-                      title: 'Mathematics',
-                      subtitle: 'Yesterday',
-                      score: '10/10',
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _ProgressCard(
+                                    iconPath: Images.quizz,
+                                    value: '$totalQuizzes',
+                                    label: 'Quizzes Taken',
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _ProgressCard(
+                                    iconPath: Images.avg,
+                                    value: '${average.round()}%',
+                                    label: 'Avg. Accuracy',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Recent Activity',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 20,
+                                      height: 22 / 20,
+                                      color: const Color(0xFF3C3C43),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _showAllRecentActivity = true;
+                                    });
+                                  },
+                                  child: Text(
+                                    _showAllRecentActivity
+                                        ? 'Showing all'
+                                        : 'View All',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 12,
+                                      height: 1,
+                                      color: const Color(0xFF3C3C43),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            if (docs.isEmpty)
+                              Text(
+                                'No quiz activity yet.',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  color: const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ...docs
+                                .take(_showAllRecentActivity ? docs.length : 2)
+                                .map((doc) {
+                              final Map<String, dynamic> data = doc.data();
+                              final int correct = _readInt(data['correctAnswers']);
+                              final int total = _readInt(data['totalQuestions']);
+                              final String title =
+                                  (data['topicTitle'] as String?)?.trim().isNotEmpty ==
+                                          true
+                                      ? (data['topicTitle'] as String).trim()
+                                      : 'Quiz Attempt';
+                              final Timestamp? ts = data['createdAt'] as Timestamp?;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _ActivityTile(
+                                  icon: _iconForTitle(title),
+                                  title: title,
+                                  subtitle: _timeAgo(ts),
+                                  score: '$correct/$total',
+                                ),
+                              );
+                            }),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -326,6 +385,42 @@ class HomeScreen extends StatelessWidget {
     if (value is double) return value.round();
     if (value is String) return int.tryParse(value.trim()) ?? 0;
     return 0;
+  }
+
+  double _readDouble(dynamic value) {
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) return double.tryParse(value.trim()) ?? 0;
+    return 0;
+  }
+
+  int _readInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.round();
+    if (value is String) return int.tryParse(value.trim()) ?? 0;
+    return 0;
+  }
+
+  IconData _iconForTitle(String title) {
+    final String t = title.toLowerCase();
+    if (t.contains('math')) return Icons.calculate_outlined;
+    if (t.contains('science')) return Icons.science_outlined;
+    if (t.contains('security')) return Icons.security_outlined;
+    if (t.contains('internet')) return Icons.public_outlined;
+    return Icons.quiz_outlined;
+  }
+
+  String _timeAgo(Timestamp? timestamp) {
+    if (timestamp == null) return 'just now';
+    final DateTime now = DateTime.now();
+    final DateTime then = timestamp.toDate();
+    final Duration diff = now.difference(then);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return '${diff.inHours} hours ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays} days ago';
+    return '${then.month}/${then.day}/${then.year}';
   }
 }
 

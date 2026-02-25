@@ -9,13 +9,21 @@ class PurchaseCreditsScreen extends StatelessWidget {
   const PurchaseCreditsScreen({super.key});
 
   void _showPurchaseSheet(BuildContext context, _CreditPackage package) {
-    final String email = FirebaseAuth.instance.currentUser?.email ?? '';
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String email = user?.email ?? '';
+    final String uid = user?.uid ?? '';
+    final String initialImageUrl = (user?.photoURL ?? '').trim();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return _PurchaseSheet(package: package, accountEmail: email);
+        return _PurchaseSheet(
+          package: package,
+          accountEmail: email,
+          accountUid: uid,
+          initialImageUrl: initialImageUrl,
+        );
       },
     );
   }
@@ -314,10 +322,17 @@ class _CreditPackCard extends StatelessWidget {
 }
 
 class _PurchaseSheet extends StatelessWidget {
-  const _PurchaseSheet({required this.package, required this.accountEmail});
+  const _PurchaseSheet({
+    required this.package,
+    required this.accountEmail,
+    required this.accountUid,
+    required this.initialImageUrl,
+  });
 
   final _CreditPackage package;
   final String accountEmail;
+  final String accountUid;
+  final String initialImageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -427,14 +442,34 @@ class _PurchaseSheet extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 10),
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: const Color(0xFFE6E6E6),
-                              child: const Icon(
-                                Icons.person,
-                                size: 18,
-                                color: Color(0xFF3C3C43),
-                              ),
+                            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                              stream: accountUid.isEmpty
+                                  ? null
+                                  : FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(accountUid)
+                                      .snapshots(),
+                              builder: (context, snapshot) {
+                                final Map<String, dynamic>? data = snapshot.data?.data();
+                                final String imageUrl = _readImageUrl(data);
+                                final String finalImageUrl = imageUrl.isNotEmpty
+                                    ? imageUrl
+                                    : initialImageUrl;
+                                return CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: const Color(0xFFE6E6E6),
+                                  backgroundImage: finalImageUrl.isNotEmpty
+                                      ? NetworkImage(finalImageUrl)
+                                      : null,
+                                  child: finalImageUrl.isEmpty
+                                      ? const Icon(
+                                          Icons.person,
+                                          size: 18,
+                                          color: Color(0xFF3C3C43),
+                                        )
+                                      : null,
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -527,6 +562,22 @@ class _PurchaseSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _readImageUrl(Map<String, dynamic>? data) {
+    final List<dynamic> candidates = <dynamic>[
+      data?['avatarUrl'],
+      data?['image'],
+      data?['profileImage'],
+      data?['photoUrl'],
+    ];
+    for (final dynamic value in candidates) {
+      final String url = (value as String? ?? '').trim();
+      if (url.isNotEmpty) {
+        return url;
+      }
+    }
+    return '';
   }
 }
 

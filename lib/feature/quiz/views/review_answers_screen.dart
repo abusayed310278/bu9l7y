@@ -13,6 +13,7 @@ class ReviewAnswerItem {
     required this.selectedIndexes,
     required this.correctIndexes,
     this.freeTextAnswer,
+    this.correctTextAnswer,
   });
 
   final String title;
@@ -21,56 +22,19 @@ class ReviewAnswerItem {
   final List<int> selectedIndexes;
   final List<int> correctIndexes;
   final String? freeTextAnswer;
+  final String? correctTextAnswer;
 }
 
 class ReviewAnswersScreen extends StatelessWidget {
-  const ReviewAnswersScreen({super.key});
+  const ReviewAnswersScreen({
+    super.key,
+    required this.items,
+  });
+
+  final List<ReviewAnswerItem> items;
 
   @override
   Widget build(BuildContext context) {
-    final List<ReviewAnswerItem> items = [
-      const ReviewAnswerItem(
-        title: 'Question 1',
-        question:
-            'Angelina buys a new printer. She wants to connect it to her home computer. Which of the following parts of the computer can she use to connect the printer to the computer?',
-        options: [
-          'Option A -  Graphics card',
-          'Option B -  Modem  FireWire  Parallel port',
-          'Option C -  Universal serial bus',
-          'Option D -  port',
-        ],
-        selectedIndexes: [0, 1, 3],
-        correctIndexes: [0, 1, 3],
-      ),
-      const ReviewAnswerItem(
-        title: 'Question 2',
-        question:
-            'Angelina buys a new printer. She wants to connect it to her home computer. Which of the following parts of the computer can she use to connect the printer to the computer?',
-        options: [
-          'Option A -  Graphics card',
-          'Option B -  Modem  FireWire  Parallel port',
-          'Option C -  Universal serial bus',
-          'Option D -  port',
-        ],
-        selectedIndexes: [0],
-        correctIndexes: [1, 2, 3],
-      ),
-      const ReviewAnswerItem(
-        title: 'Question 3',
-        question:
-            'Angelina buys a new printer. She wants to connect it to her home computer. Which of the following parts of the computer can she use to connect the printer to the computer?',
-        options: [
-          'Option A -  Graphics card',
-          'Option B -  Modem  FireWire  Parallel port',
-          'Option C -  Universal serial bus',
-          'Option D -  port',
-        ],
-        selectedIndexes: const [],
-        correctIndexes: const [],
-        freeTextAnswer: 'B D C A',
-      ),
-    ];
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -96,14 +60,17 @@ class ReviewAnswersScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
-                itemBuilder: (context, index) {
-                  return _ReviewQuestionCard(item: items[index]);
-                },
-              ),
+              child: items.isEmpty
+                  ? const Center(child: Text('No answers to review.'))
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      itemCount: items.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 14),
+                      itemBuilder: (context, index) {
+                        return _ReviewQuestionCard(item: items[index]);
+                      },
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -234,7 +201,11 @@ class _ReviewQuestionCard extends StatelessWidget {
 
   bool _isAllCorrect() {
     if (item.freeTextAnswer != null) {
-      return true;
+      final String userText = item.freeTextAnswer!.trim().toLowerCase();
+      final String correctText = (item.correctTextAnswer ?? '')
+          .trim()
+          .toLowerCase();
+      return userText.isNotEmpty && userText == correctText;
     }
     if (item.selectedIndexes.length != item.correctIndexes.length) {
       return false;
@@ -266,6 +237,8 @@ class _ReviewQuestionCard extends StatelessWidget {
   }
 
   Widget _buildTypedAnswer(bool isCorrect) {
+    final String userAnswer = item.freeTextAnswer ?? '';
+    final String correctAnswer = item.correctTextAnswer ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -276,6 +249,26 @@ class _ReviewQuestionCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
+        Text(
+          'Your Answer',
+          style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF3C3C43), fontWeight: FontWeight.w400),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 34,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE6E6E6), width: 1),
+          ),
+          child: Text(
+            userAnswer.isEmpty ? '-' : userAnswer,
+            style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: const Color(0xFF1F2224), fontWeight: FontWeight.w400),
+          ),
+        ),
+        const SizedBox(height: 8),
         Text(
           'Correct Answer',
           style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF00C950), fontWeight: FontWeight.w400),
@@ -291,7 +284,7 @@ class _ReviewQuestionCard extends StatelessWidget {
             border: Border.all(color: const Color(0xFF2BB673), width: 1),
           ),
           child: Text(
-            item.freeTextAnswer!,
+            correctAnswer.isEmpty ? '-' : correctAnswer,
             style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF2BB673), fontWeight: FontWeight.w400),
           ),
         ),
