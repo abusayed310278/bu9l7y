@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.bu9l7y</string>
+	<string>com.ziuq.buly</string>
 	<key>PROJECT_ID</key>
 	<string>itknowledgequiz</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:67345152530:ios:d2b02f3aa20b906000f6cb</string>
+	<string>1:67345152530:ios:736bc2d9325414fb00f6cb</string>
 </dict>
 </plist>

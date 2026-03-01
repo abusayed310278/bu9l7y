@@ -27,7 +27,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBW0mA6G2AibYHHxEIuaVOOdPNKt4FEF9E',
-    appId: '1:67345152530:android:687778de6d650dff00f6cb',
+    appId: '1:67345152530:android:a3e71f0ada8eeb1f00f6cb',
     messagingSenderId: '67345152530',
     projectId: 'itknowledgequiz',
     storageBucket: 'itknowledgequiz.firebasestorage.app',
@@ -35,10 +35,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDi5J7wJuLFavu_L2Vi0q6hPbBX5K2zuD0',
-    appId: '1:67345152530:ios:d2b02f3aa20b906000f6cb',
+    appId: '1:67345152530:ios:736bc2d9325414fb00f6cb',
     messagingSenderId: '67345152530',
     projectId: 'itknowledgequiz',
     storageBucket: 'itknowledgequiz.firebasestorage.app',
-    iosBundleId: 'com.example.bu9l7y',
+    iosBundleId: 'com.ziuq.buly',
   );
+
 }
