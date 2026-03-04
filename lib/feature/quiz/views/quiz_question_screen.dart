@@ -296,6 +296,7 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
               q.type == QuizQuestionType.typed ||
               q.type == QuizQuestionType.chooseOrder)
           .toList();
+      loaded.shuffle(Random());
       if (!mounted) return;
       setState(() {
         _questions = loaded;
