@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bu9l7y/feature/quiz/views/quiz_result_screen.dart';
 import 'package:bu9l7y/feature/quiz/views/review_answers_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -70,6 +72,42 @@ class QuizQuestion {
       optionIds: optionIds,
       maxSelections: maxSelections,
       correctIndexes: correctIndexes,
+      correctText: correctText,
+    ).withShuffledOptions();
+  }
+
+  QuizQuestion withShuffledOptions() {
+    if (type != QuizQuestionType.singleChoice && type != QuizQuestionType.multiChoice) {
+      return this;
+    }
+    if (options.length < 2 || optionIds.length != options.length) {
+      return this;
+    }
+
+    final List<int> oldIndexes = List<int>.generate(options.length, (i) => i)
+      ..shuffle(Random());
+    final List<String> shuffledOptions = oldIndexes.map((i) => options[i]).toList();
+    final List<String> shuffledOptionIds = oldIndexes.map((i) => optionIds[i]).toList();
+    final Map<int, int> newIndexByOldIndex = <int, int>{
+      for (int newIndex = 0; newIndex < oldIndexes.length; newIndex++)
+        oldIndexes[newIndex]: newIndex,
+    };
+    final List<int> shuffledCorrectIndexes = correctIndexes
+        .map((oldIndex) => newIndexByOldIndex[oldIndex])
+        .whereType<int>()
+        .toList()
+      ..sort();
+
+    return QuizQuestion(
+      id: id,
+      question: question,
+      type: type,
+      helpText: helpText,
+      imageUrl: imageUrl,
+      options: shuffledOptions,
+      optionIds: shuffledOptionIds,
+      maxSelections: maxSelections,
+      correctIndexes: shuffledCorrectIndexes,
       correctText: correctText,
     );
   }

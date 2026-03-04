@@ -33,7 +33,7 @@ class ApiClient {
         onError: (DioException e, handler) async {
           Get.closeAllSnackbars();
 
-          bool _bypassAuthHandling(String path) {
+          bool bypassAuthHandling(String path) {
             return path.contains("/auth/login") ||
                 path.contains("/auth/social-login") ||
                 path.contains("/auth/signup") ||
@@ -45,7 +45,7 @@ class ApiClient {
           }
 
           // Skip logout for auth/register + professional create endpoints
-          if (_bypassAuthHandling(e.requestOptions.path)) {
+          if (bypassAuthHandling(e.requestOptions.path)) {
             return handler.next(e); // just pass error
           }
 

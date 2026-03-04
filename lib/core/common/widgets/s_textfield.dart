@@ -38,9 +38,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   // ---------------- STRONG PASSWORD -----------------
   bool isStrongPassword(String pass) {
-    final strongPassRegex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%^&*]).{6,}$',
-    );
+    final strongPassRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%^&*]).{6,}$');
     return strongPassRegex.hasMatch(pass);
   }
 
@@ -62,9 +60,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       }
 
       // STRONG PASSWORD
-      if (widget.isStrongPassword &&
-          value.isNotEmpty &&
-          !isStrongPassword(value)) {
+      if (widget.isStrongPassword && value.isNotEmpty && !isStrongPassword(value)) {
         if (!Get.isSnackbarOpen) {
           Get.snackbar(
             "Weak Password",
@@ -93,17 +89,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
         // textCapitalization: TextCapitalization.words,
         controller: widget.controller,
         obscureText: widget.isPassword ? _obscure : false,
-        keyboardType: widget.isEmail
-            ? TextInputType.emailAddress
-            : widget.keyboardType,
+        keyboardType: widget.isEmail ? TextInputType.emailAddress : widget.keyboardType,
         onChanged: validateField,
         decoration: InputDecoration(
           hintText: widget.hintText,
-          hintStyle: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF929292),
-            fontWeight: FontWeight.w600,
-          ),
+          hintStyle: const TextStyle(fontSize: 16, color: Color(0xFF929292), fontWeight: FontWeight.w600),
           /*       prefixIcon: widget.prefixWidget != null
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -111,22 +101,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 )
               : null, */
           prefixIcon: widget.prefixWidget != null
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: widget.prefixWidget!,
-                )
+              ? Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: widget.prefixWidget!)
               : null,
-          prefixIconConstraints: const BoxConstraints(
-            minHeight: 20,
-            minWidth: 20,
-          ),
+          prefixIconConstraints: const BoxConstraints(minHeight: 20, minWidth: 20),
           suffixIcon: widget.isPassword
               ? IconButton(
-                  icon: Icon(
-                    _obscure ? Icons.visibility_off : Icons.visibility,
-                    size: 20,
-                    color: const Color(0xFFB1B3B4),
-                  ),
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, size: 20, color: const Color(0xFFB1B3B4)),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 )
               : null,
