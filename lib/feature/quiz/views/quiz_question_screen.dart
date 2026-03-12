@@ -47,7 +47,9 @@ class QuizQuestion {
       _ => QuizQuestionType.singleChoice,
     };
 
-    final List<_ParsedOption> parsedOptions = _parseOptions(data['answerOptions']);
+    final List<_ParsedOption> parsedOptions = _parseOptions(
+      data['answerOptions'],
+    );
     final List<String> options = parsedOptions.map((o) => o.text).toList();
     final List<String> optionIds = parsedOptions.map((o) => o.id).toList();
     final dynamic correctAnswer = data['correctAnswer'];
@@ -56,7 +58,11 @@ class QuizQuestion {
       optionIds: optionIds,
       correctAnswer: correctAnswer,
     );
-    final int? maxSelections = _parseMaxSelections(type, correctAnswer, correctIndexes);
+    final int? maxSelections = _parseMaxSelections(
+      type,
+      correctAnswer,
+      correctIndexes,
+    );
     final String? helpText = _buildHelpText(type, maxSelections);
     final String? correctText = _parseCorrectText(type, correctAnswer);
 
@@ -77,7 +83,8 @@ class QuizQuestion {
   }
 
   QuizQuestion withShuffledOptions() {
-    if (type != QuizQuestionType.singleChoice && type != QuizQuestionType.multiChoice) {
+    if (type != QuizQuestionType.singleChoice &&
+        type != QuizQuestionType.multiChoice) {
       return this;
     }
     if (options.length < 2 || optionIds.length != options.length) {
@@ -86,17 +93,22 @@ class QuizQuestion {
 
     final List<int> oldIndexes = List<int>.generate(options.length, (i) => i)
       ..shuffle(Random());
-    final List<String> shuffledOptions = oldIndexes.map((i) => options[i]).toList();
-    final List<String> shuffledOptionIds = oldIndexes.map((i) => optionIds[i]).toList();
+    final List<String> shuffledOptions = oldIndexes
+        .map((i) => options[i])
+        .toList();
+    final List<String> shuffledOptionIds = oldIndexes
+        .map((i) => optionIds[i])
+        .toList();
     final Map<int, int> newIndexByOldIndex = <int, int>{
       for (int newIndex = 0; newIndex < oldIndexes.length; newIndex++)
         oldIndexes[newIndex]: newIndex,
     };
-    final List<int> shuffledCorrectIndexes = correctIndexes
-        .map((oldIndex) => newIndexByOldIndex[oldIndex])
-        .whereType<int>()
-        .toList()
-      ..sort();
+    final List<int> shuffledCorrectIndexes =
+        correctIndexes
+            .map((oldIndex) => newIndexByOldIndex[oldIndex])
+            .whereType<int>()
+            .toList()
+          ..sort();
 
     return QuizQuestion(
       id: id,
@@ -123,7 +135,8 @@ class QuizQuestion {
         final Map<String, dynamic> map = Map<String, dynamic>.from(item);
         final String text = (map['text'] as String?)?.trim() ?? '';
         if (text.isEmpty) continue;
-        final String id = (map['id'] as String?)?.trim().toUpperCase() ??
+        final String id =
+            (map['id'] as String?)?.trim().toUpperCase() ??
             String.fromCharCode(65 + i);
         final int order = _readInt(map['order'], i);
         items.add(_ParsedOption(id: id, text: text, order: order));
@@ -138,7 +151,8 @@ class QuizQuestion {
     required List<String> optionIds,
     required dynamic correctAnswer,
   }) {
-    if (type == QuizQuestionType.typed || type == QuizQuestionType.chooseOrder) {
+    if (type == QuizQuestionType.typed ||
+        type == QuizQuestionType.chooseOrder) {
       return <int>[];
     }
 
@@ -190,8 +204,12 @@ class QuizQuestion {
     return null;
   }
 
-  static String? _parseCorrectText(QuizQuestionType type, dynamic correctAnswer) {
-    if (type != QuizQuestionType.typed && type != QuizQuestionType.chooseOrder) {
+  static String? _parseCorrectText(
+    QuizQuestionType type,
+    dynamic correctAnswer,
+  ) {
+    if (type != QuizQuestionType.typed &&
+        type != QuizQuestionType.chooseOrder) {
       return null;
     }
     if (correctAnswer == null) {
@@ -206,9 +224,10 @@ class QuizQuestion {
   static String? _buildHelpText(QuizQuestionType type, int? maxSelections) {
     return switch (type) {
       QuizQuestionType.singleChoice => 'Select one answer',
-      QuizQuestionType.multiChoice => maxSelections != null && maxSelections > 1
-          ? 'Select $maxSelections correct answers'
-          : 'Select all that apply',
+      QuizQuestionType.multiChoice =>
+        maxSelections != null && maxSelections > 1
+            ? 'Select $maxSelections correct answers'
+            : 'Select all that apply',
       QuizQuestionType.typed => 'Type your answer',
       QuizQuestionType.chooseOrder => 'Select all that apply',
     };
@@ -270,7 +289,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       _errorMessage = null;
     });
     try {
-      Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('questions');
+      Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection(
+        'questions',
+      );
       final String selectedModelId = (widget.modelId ?? '').trim();
       final Set<String> selectedModelIds = (widget.modelIds ?? <String>[])
           .map((id) => id.trim())
@@ -286,15 +307,18 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
           selectedModelIds.isEmpty || selectedModelId.isNotEmpty
           ? snapshot.docs
           : snapshot.docs.where((doc) {
-              final String modelId = (doc.data()['modelId'] as String? ?? '').trim();
+              final String modelId = (doc.data()['modelId'] as String? ?? '')
+                  .trim();
               return selectedModelIds.contains(modelId);
             });
       final List<QuizQuestion> loaded = filteredDocs
           .map(QuizQuestion.fromDoc)
-          .where((q) =>
-              q.options.isNotEmpty ||
-              q.type == QuizQuestionType.typed ||
-              q.type == QuizQuestionType.chooseOrder)
+          .where(
+            (q) =>
+                q.options.isNotEmpty ||
+                q.type == QuizQuestionType.typed ||
+                q.type == QuizQuestionType.chooseOrder,
+          )
           .toList();
       loaded.shuffle(Random());
       if (!mounted) return;
@@ -376,7 +400,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       setState(() {
         _currentIndex -= 1;
       });
+      return;
     }
+    Navigator.of(context).pop();
   }
 
   TextEditingController _controllerFor(int index) {
@@ -402,13 +428,17 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
       final String correctText = (question.correctText ?? '')
           .trim()
           .toLowerCase();
-      return userText.isNotEmpty && correctText.isNotEmpty && userText == correctText;
+      return userText.isNotEmpty &&
+          correctText.isNotEmpty &&
+          userText == correctText;
     }
     if (question.type == QuizQuestionType.chooseOrder) {
       final String userOrder = _normalizeOrderAnswer(
         (_typedControllers[index]?.text ?? ''),
       );
-      final String correctOrder = _normalizeOrderAnswer(question.correctText ?? '');
+      final String correctOrder = _normalizeOrderAnswer(
+        question.correctText ?? '',
+      );
       return userOrder.isNotEmpty &&
           correctOrder.isNotEmpty &&
           userOrder == correctOrder;
@@ -481,7 +511,10 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
               children: [
                 Text(_errorMessage!),
                 const SizedBox(height: 10),
-                ElevatedButton(onPressed: _loadQuestions, child: const Text('Retry')),
+                ElevatedButton(
+                  onPressed: _loadQuestions,
+                  child: const Text('Retry'),
+                ),
               ],
             ),
           ),
@@ -497,7 +530,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
     final question = _currentQuestion;
     final int questionNumber = _currentIndex + 1;
     final int totalQuestions = _questions.length;
-    final double progress = totalQuestions == 0 ? 0 : questionNumber / totalQuestions;
+    final double progress = totalQuestions == 0
+        ? 0
+        : questionNumber / totalQuestions;
 
     return Scaffold(
       body: SafeArea(
@@ -512,7 +547,10 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                     icon: const Icon(Icons.arrow_back, size: 24),
                     color: const Color(0xFF1F2224),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -536,7 +574,9 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                   value: progress,
                   minHeight: 6,
                   backgroundColor: const Color(0xFFE6E6E6),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF284968)),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF284968),
+                  ),
                 ),
               ),
             ),
@@ -569,7 +609,8 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                         ),
                       ),
                     ],
-                    if (question.helpText != null && question.helpText!.trim().isNotEmpty) ...[
+                    if (question.helpText != null &&
+                        question.helpText!.trim().isNotEmpty) ...[
                       const SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -611,16 +652,21 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                           child: SizedBox(
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: _currentIndex == 0 ? null : _goPrevious,
+                              onPressed: _goPrevious,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFE6E6E6),
                                 foregroundColor: const Color(0xFF3C3C43),
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
                               ),
                               child: Text(
                                 'Previous',
-                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
@@ -635,11 +681,18 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                                 backgroundColor: const Color(0xFF284968),
                                 foregroundColor: Colors.white,
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
                               ),
                               child: Text(
-                                _currentIndex == _questions.length - 1 ? 'Submit' : 'Next',
-                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
+                                _currentIndex == _questions.length - 1
+                                    ? 'Submit'
+                                    : 'Next',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
@@ -673,17 +726,23 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
                 _singleSelections[_currentIndex] = index;
                 return;
               }
-              final selections = _multiSelections.putIfAbsent(_currentIndex, () => <int>{});
+              final selections = _multiSelections.putIfAbsent(
+                _currentIndex,
+                () => <int>{},
+              );
               if (selections.contains(index)) {
                 selections.remove(index);
               } else {
-                if (question.maxSelections == null || selections.length < question.maxSelections!) {
+                if (question.maxSelections == null ||
+                    selections.length < question.maxSelections!) {
                   selections.add(index);
                 }
               }
             });
           },
-          selectedStyle: question.type == QuizQuestionType.multiChoice ? true : false,
+          selectedStyle: question.type == QuizQuestionType.multiChoice
+              ? true
+              : false,
         ),
       );
     });
@@ -711,14 +770,24 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
           question.type == QuizQuestionType.chooseOrder
               ? 'Type the correct answer order here'
               : (question.helpText ?? 'Type your answer here'),
-          style: GoogleFonts.outfit(fontSize: 12, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
+          style: GoogleFonts.outfit(
+            fontSize: 12,
+            height: 1.2,
+            color: Color(0xFF1F2224),
+            fontWeight: FontWeight.w400,
+          ),
         ),
         const SizedBox(height: 8),
         SizedBox(
           height: 44,
           child: TextField(
             controller: _controllerFor(_currentIndex),
-            style: GoogleFonts.outfit(fontSize: 14, height: 1.2, color: Color(0xFF1F2224), fontWeight: FontWeight.w400),
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              height: 1.2,
+              color: Color(0xFF1F2224),
+              fontWeight: FontWeight.w400,
+            ),
             decoration: InputDecoration(
               hintText: 'A C D B...',
               hintStyle: GoogleFonts.outfit(
@@ -730,7 +799,10 @@ class _QuizQuestionScreenState extends State<QuizQuestionScreen> {
               filled: true,
               fillColor: const Color(0xFFE6E6E6),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
         ),
@@ -756,9 +828,15 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor = selected ? const Color(0xFF1E8BD7) : const Color(0xFFD3D3D3);
-    final Color bgColor = selected ? const Color(0xFFEAF6FF) : const Color(0xFFFFFFFF);
-    final Color iconColor = selected ? const Color(0xFF1E8BD7) : const Color(0xFFCCCCCC);
+    final Color borderColor = selected
+        ? const Color(0xFF1E8BD7)
+        : const Color(0xFFD3D3D3);
+    final Color bgColor = selected
+        ? const Color(0xFFEAF6FF)
+        : const Color(0xFFFFFFFF);
+    final Color iconColor = selected
+        ? const Color(0xFF1E8BD7)
+        : const Color(0xFFCCCCCC);
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
@@ -770,7 +848,13 @@ class _OptionCard extends StatelessWidget {
           color: bgColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: borderColor, width: 0.5),
-          boxShadow: const [BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 3))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -780,11 +864,19 @@ class _OptionCard extends StatelessWidget {
                 height: 26,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected ? const Color(0xFF1E8BD7) : Colors.transparent,
+                  color: selected
+                      ? const Color(0xFF1E8BD7)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(13),
                   border: Border.all(color: iconColor, width: 2),
                 ),
-                child: selected ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+                child: selected
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 14,
+                        color: Colors.white,
+                      )
+                    : null,
               ),
               const SizedBox(width: 12),
             ],
@@ -794,7 +886,9 @@ class _OptionCard extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   height: 1.2,
-                  color: selected ? const Color(0xFF1E8BD7) : const Color(0xFF1F2224),
+                  color: selected
+                      ? const Color(0xFF1E8BD7)
+                      : const Color(0xFF1F2224),
                   fontWeight: FontWeight.w400,
                 ),
               ),
