@@ -77,10 +77,12 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     .orderBy('createdAt', descending: false)
                     .snapshots(),
                 builder: (context, modelSnapshot) {
-                  if (modelSnapshot.connectionState == ConnectionState.waiting) {
+                  if (modelSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  final List<_TopicItem> topics = modelSnapshot.data?.docs
+                  final List<_TopicItem> topics =
+                      modelSnapshot.data?.docs
                           .map(_TopicItem.fromDoc)
                           .toList() ??
                       <_TopicItem>[];
@@ -116,9 +118,10 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                           final int questions = countsByModel[base.id] ?? 0;
                           final _TopicItem topic = base.copyWith(
                             questions: questions,
-                            credits: questions * 2,
                           );
-                          final bool selected = _selectedIndexes.contains(index);
+                          final bool selected = _selectedIndexes.contains(
+                            index,
+                          );
                           return _TopicCard(
                             topic: topic,
                             selected: selected,
@@ -147,19 +150,22 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                     .orderBy('createdAt', descending: false)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  final List<_TopicItem> topics = snapshot.data?.docs
-                          .map(_TopicItem.fromDoc)
-                          .toList() ??
+                  final List<_TopicItem> topics =
+                      snapshot.data?.docs.map(_TopicItem.fromDoc).toList() ??
                       <_TopicItem>[];
                   return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance.collection('questions').snapshots(),
+                    stream: FirebaseFirestore.instance
+                        .collection('questions')
+                        .snapshots(),
                     builder: (context, questionSnapshot) {
                       final Map<String, int> countsByModel = <String, int>{};
                       if (questionSnapshot.hasData) {
                         for (final doc in questionSnapshot.data!.docs) {
-                          final String modelId = (doc.data()['modelId'] as String? ?? '').trim();
+                          final String modelId =
+                              (doc.data()['modelId'] as String? ?? '').trim();
                           if (modelId.isEmpty) continue;
-                          countsByModel[modelId] = (countsByModel[modelId] ?? 0) + 1;
+                          countsByModel[modelId] =
+                              (countsByModel[modelId] ?? 0) + 1;
                         }
                       }
 
@@ -170,10 +176,7 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                           .map((index) => topics[index])
                           .map((topic) {
                             final int questions = countsByModel[topic.id] ?? 0;
-                            return topic.copyWith(
-                              questions: questions,
-                              credits: questions * 2,
-                            );
+                            return topic.copyWith(questions: questions);
                           })
                           .toList();
                       final int selectedCredits = selectedTopics.fold<int>(
@@ -183,12 +186,19 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                       final bool canContinue = selectedTopics.isNotEmpty;
 
                       final User? user = FirebaseAuth.instance.currentUser;
-                      return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      return StreamBuilder<
+                        DocumentSnapshot<Map<String, dynamic>>
+                      >(
                         stream: user == null
                             ? null
-                            : FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
+                            : FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user.uid)
+                                  .snapshots(),
                         builder: (context, userSnapshot) {
-                          final int currentCredits = _readCredits(userSnapshot.data?.data());
+                          final int currentCredits = _readCredits(
+                            userSnapshot.data?.data(),
+                          );
                           return SizedBox(
                             height: 48,
                             width: double.infinity,
@@ -199,19 +209,24 @@ class _SelectQuizTopicsScreenState extends State<SelectQuizTopicsScreen> {
                                       if (currentCredits < selectedCredits) {
                                         Navigator.of(context).push(
                                           MaterialPageRoute<void>(
-                                            builder: (_) => InsufficientCreditsScreen(
-                                              requiredCredits: selectedCredits,
-                                              currentCredits: currentCredits,
-                                            ),
+                                            builder: (_) =>
+                                                InsufficientCreditsScreen(
+                                                  requiredCredits:
+                                                      selectedCredits,
+                                                  currentCredits:
+                                                      currentCredits,
+                                                ),
                                           ),
                                         );
                                         return;
                                       }
 
-                                      final List<String> selectedModelIds = selectedTopics
-                                          .map((topic) => topic.id)
-                                          .toList();
-                                      final String title = selectedTopics.length == 1
+                                      final List<String> selectedModelIds =
+                                          selectedTopics
+                                              .map((topic) => topic.id)
+                                              .toList();
+                                      final String title =
+                                          selectedTopics.length == 1
                                           ? selectedTopics.first.title
                                           : 'Selected Topics';
                                       Navigator.of(context).push(
@@ -271,10 +286,7 @@ class _TopicItem {
   final int questions;
   final int credits;
 
-  _TopicItem copyWith({
-    int? questions,
-    int? credits,
-  }) {
+  _TopicItem copyWith({int? questions, int? credits}) {
     return _TopicItem(
       id: id,
       title: title,
@@ -286,11 +298,17 @@ class _TopicItem {
   static _TopicItem fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final Map<String, dynamic> data = doc.data() ?? <String, dynamic>{};
     final String? title = (data['title'] as String?)?.trim();
+    final dynamic creditsRaw = data['credits'];
+    final int credits = creditsRaw is int
+        ? creditsRaw
+        : creditsRaw is double
+        ? creditsRaw.round()
+        : int.tryParse((creditsRaw ?? '0').toString().trim()) ?? 0;
     return _TopicItem(
       id: doc.id,
       title: (title == null || title.isEmpty) ? 'Untitled Model' : title,
       questions: 0,
-      credits: 0,
+      credits: credits,
     );
   }
 }
